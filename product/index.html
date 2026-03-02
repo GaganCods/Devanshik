@@ -1,0 +1,2005 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product — Devanshik</title>
+    <meta name="description" content="View product details, choose size, upload your photo and add to cart.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .detail-section {
+            padding: var(--space-10) 0 var(--space-16);
+        }
+
+        .detail-price-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin: var(--space-4) 0;
+        }
+
+        .price-original {
+            font-size: var(--text-lg);
+            color: var(--color-text-muted);
+            text-decoration: line-through;
+        }
+
+        .discount-badge {
+            background: #D1FAE5;
+            color: #065F46;
+            font-size: var(--text-xs);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            color: #FBBF24;
+            font-size: var(--text-sm);
+        }
+
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .review-card {
+            padding: var(--space-4);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .review-author {
+            font-weight: 600;
+            font-size: var(--text-sm);
+        }
+
+        .review-date {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+        }
+
+        .write-review-box {
+            background: var(--color-surface-alt);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            margin-top: var(--space-8);
+        }
+
+        .star-rating-input {
+            display: flex;
+            gap: 4px;
+            margin-bottom: var(--space-4);
+        }
+
+        .star-rating-input span {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-border);
+        }
+
+        .star-rating-input span.active {
+            color: #FBBF24;
+        }
+
+        .qty-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        .stock-badge.out {
+            color: var(--color-danger);
+        }
+
+        .tab-bar {
+            display: flex;
+            border-bottom: 2px solid var(--color-border);
+            margin-bottom: var(--space-6);
+        }
+
+        .tab-btn {
+            padding: var(--space-3) var(--space-5);
+            font-weight: 600;
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all var(--transition-fast);
+            background: none;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: var(--text-sm);
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .digital-info-box {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            border: 1px solid #C7D2FE;
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            margin-bottom: var(--space-5);
+        }
+
+        .digital-info-box h4 {
+            color: #4338CA;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .digital-info-box p {
+            color: #6366F1;
+            font-size: var(--text-sm);
+        }
+
+        .detail-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #f6f1ea;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scroll-behavior: smooth;
+        }
+
+        .thumb {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .thumb.active {
+            border-color: var(--color-primary);
+        }
+
+        @media (min-width: 992px) {
+            .detail-gallery {
+                display: grid;
+                grid-template-columns: 90px 1fr;
+                gap: 20px;
+            }
+
+            .thumb-strip {
+                flex-direction: column;
+                overflow: visible;
+                max-height: 500px;
+            }
+        }
+
+
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+            /* Reset previous radius if any */
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+            margin-top: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: var(--space-3);
+            flex-shrink: 0;
+        }
+
+        .detail-wishlist,
+        .detail-share {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-wishlist:hover,
+        .detail-share:hover {
+            transform: scale(1.1);
+        }
+
+        .detail-wishlist:hover {
+            border-color: #e91e63;
+            color: #e91e63;
+            box-shadow: 0 6px 15px rgba(233, 30, 99, 0.15);
+        }
+
+        .detail-share:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            box-shadow: 0 6px 15px rgba(139, 107, 74, 0.15);
+        }
+
+        .detail-wishlist.active {
+            background: #ffffff;
+            border-color: #e91e63;
+            color: #e91e63;
+        }
+
+        .detail-wishlist.active .icon-wishlist {
+            -webkit-mask-image: url('/assets/svg/wishlist-filled.svg');
+            mask-image: url('/assets/svg/wishlist-filled.svg');
+            background-color: #e91e63;
+        }
+
+        @media (max-width: 768px) {
+            .detail-header {
+                align-items: flex-start;
+            }
+
+            .detail-wishlist,
+            .detail-share {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        /* Review Styles Upgrade */
+        .verified-badge {
+            font-size: 11px;
+            color: #16a34a;
+            background: #ecfdf5;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .review-images {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .review-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            transition: transform 0.2s;
+        }
+
+        .review-img:hover {
+            transform: scale(1.05);
+        }
+
+        .star-breakdown {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .break-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .bar {
+            flex: 1;
+            height: 8px;
+            background: #f1f1f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            background: #f59e0b;
+            border-radius: 10px;
+        }
+
+        .admin-reply {
+            background: #fdfaf6;
+            padding: 12px 16px;
+            border-left: 3px solid var(--color-primary);
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .admin-reply strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--color-primary);
+        }
+
+        .helpful-btn {
+            background: none;
+            border: 1px solid var(--color-border);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .helpful-btn:hover {
+            background: var(--color-surface-alt);
+        }
+
+        .helpful-btn.active {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+            background: #fff8f5;
+        }
+
+        #review-sort {
+            background: white;
+            border: 1px solid var(--color-border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .review-upload-preview {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .preview-item .remove {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: 1px solid white;
+        }
+
+        /* Advanced Marketplace Review Gallery */
+        .review-lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .review-lightbox.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .review-lightbox-inner {
+            background: #fff;
+            width: 95%;
+            max-width: 1100px;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .review-lightbox.open .review-lightbox-inner {
+            transform: scale(1);
+        }
+
+        .review-lightbox-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: 80vh;
+            max-height: 750px;
+        }
+
+        .lightbox-image-section {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lightbox-image-section img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+
+        .lightbox-image-section img:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-arrow.left {
+            left: 20px;
+        }
+
+        .nav-arrow.right {
+            right: 20px;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .lightbox-thumbs {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            z-index: 20;
+        }
+
+        .lightbox-thumbs .thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        .lightbox-thumbs .thumb.active {
+            border-color: #fff;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .lightbox-review-section {
+            padding: 40px;
+            overflow-y: auto;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+            background: #fff;
+        }
+
+        .top-review-photos {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 0 20px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .top-photo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            border: 1px solid var(--color-border);
+        }
+
+        .top-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .review-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--color-border);
+        }
+
+        .review-thumb:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .photo-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--color-text-main);
+            background: var(--color-surface-alt);
+            padding: 10px 16px;
+            border-radius: 10px;
+            width: fit-content;
+        }
+
+        .photo-filter-row input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        @media (max-width: 992px) {
+            .review-lightbox-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+                height: 95vh;
+                max-height: none;
+            }
+
+            .lightbox-review-section {
+                padding: 24px;
+            }
+
+            .lightbox-image-section {
+                height: 45vh;
+            }
+
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+            }
+
+            .lightbox-thumbs {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body>
+    <div id="page-loader" class="page-loader hidden">
+        <div class="spinner"></div><span class="brand">Devanshik</span>
+    </div>
+
+    <!-- Dynamic Header -->
+    <div id="header-container"></div>
+
+    <main class="detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/">Home</a><span class="breadcrumb-sep">/</span>
+                <a href="/shop">Products</a><span class="breadcrumb-sep">/</span>
+                <span id="bc-title">Product</span>
+            </div>
+
+            <div id="product-skeleton" class="product-skeleton" style="padding:var(--space-10) 0;">
+                <div class="sk-image"></div>
+                <div class="sk-content" style="padding-top: var(--space-4);">
+                    <div class="sk-line small"></div>
+                    <div class="sk-line large" style="margin-bottom: var(--space-4);"></div>
+                    <div class="sk-line medium"></div>
+                    <div class="sk-line medium"></div>
+                    <div class="sk-line small"></div>
+                    <div class="sk-button" style="margin-top: var(--space-8);"></div>
+                </div>
+            </div>
+
+            <div id="product-content" class="detail-layout hidden">
+                <!-- Gallery -->
+                <div class="detail-gallery">
+                    <div class="thumb-strip" id="thumb-strip"></div>
+                    <div class="main-image" id="main-image">
+                        <img id="main-img" src="" alt="">
+                    </div>
+                </div>
+
+
+                <!-- Info -->
+                <div>
+                    <span class="badge" id="product-cat"
+                        style="background:var(--color-surface-alt);color:var(--color-primary);margin-bottom:var(--space-3);">Category</span>
+                    <span id="type-badge"
+                        style="display:inline-block; margin-left:8px; font-size:12px; font-weight:700; padding:2px 8px; border-radius:4px;"></span>
+                    <div class="detail-header">
+                        <h1 id="product-title" style="font-size:var(--text-3xl); margin:0;"></h1>
+                        <div class="detail-actions">
+                            <button id="detail-wishlist-btn" class="detail-wishlist" title="Add to Wishlist">
+                                <span class="icon icon-wishlist"></span>
+                            </button>
+                            <button id="share-btn" class="detail-share" title="Share Product">
+                                <span class="icon icon-share"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="rating-summary" id="rating-summary"></div>
+                    <div class="stock-badge" id="stock-badge">● In Stock</div>
+                    <div class="detail-price-row" id="price-row"></div>
+
+                    <!-- Digital product info -->
+                    <div id="digital-info" class="digital-info-box hidden">
+                        <h4>⚡ Instant Digital Download</h4>
+                        <p>After placing your order, a download link will appear in your <a href="/dashboard"
+                                style="color:#4338CA; font-weight:600;">dashboard</a>.</p>
+                    </div>
+
+                    <p id="product-desc"
+                        style="color:var(--color-text-muted); line-height:1.8; margin-bottom:var(--space-5); white-space:pre-wrap;">
+                    </p>
+                    <hr class="divider">
+
+
+                    <!-- Size picker (for print products) -->
+                    <div id="size-section" class="hidden" style="margin-bottom:var(--space-5);">
+                        <span class="detail-label">📐 Choose Size</span>
+                        <div class="size-grid" id="size-grid"></div>
+                    </div>
+
+                    <!-- Qty + Add to Cart -->
+                    <span class="detail-label">Quantity</span>
+                    <div class="qty-row" style="margin-bottom:var(--space-6);">
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                            <input type="number" class="qty-input" id="qty-input" value="1" min="1" max="99">
+                            <button class="qty-btn" onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:var(--space-3); flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-lg" onclick="handleAddToCart()" id="atc-btn">🛒 Add to
+                            Cart</button>
+                        <a href="/cart" class="btn btn-outline btn-lg">View Cart</a>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div style="margin-top:var(--space-8);">
+                        <div class="tab-bar">
+                            <button class="tab-btn active" onclick="switchTab(this,'tab-desc')">Description</button>
+                            <button class="tab-btn" onclick="switchTab(this,'tab-spec')">Specifications</button>
+                            <button class="tab-btn" onclick="switchTab(this,'tab-reviews')">Reviews (<span
+                                    id="review-count">0</span>)</button>
+                        </div>
+                        <div id="tab-desc" class="tab-content active">
+                            <p id="tab-desc-text" style="color:var(--color-text-muted); line-height:1.8;"></p>
+                        </div>
+                        <div id="tab-spec" class="tab-content">
+                            <div id="spec-rows"></div>
+                        </div>
+                        <div id="tab-reviews" class="tab-content">
+                            <!-- Star Breakdown -->
+                            <div class="star-breakdown" id="star-breakdown"></div>
+
+                            <!-- Top Review Photos -->
+                            <div class="review-gallery-header" style="margin-bottom: var(--space-4);">
+                                <h4 style="margin: 0;">Verified Customer Photos</h4>
+                                <div id="review-photos-trigger-container" style="margin-top: 8px;"></div>
+                            </div>
+                            <div class="top-review-photos" id="top-review-photos" style="display: none;"></div>
+
+                            <div
+                                style="display:flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                                <div>
+                                    <h4 style="margin-bottom:10px;">Customer Reviews</h4>
+                                    <label class="photo-filter-row">
+                                        <input type="checkbox" id="photo-only" onchange="loadReviews()">
+                                        <span>Reviews with photos</span>
+                                    </label>
+                                </div>
+                                <select id="review-sort" onchange="loadReviews()">
+                                    <option value="newest">Newest First</option>
+                                    <option value="highest">Highest Rating</option>
+                                    <option value="lowest">Lowest Rating</option>
+                                </select>
+                            </div>
+
+                            <div id="reviews-list"></div>
+
+                            <!-- Write Review Box -->
+                            <div id="review-form-container" class="write-review-box hidden">
+                                <h4 style="margin-bottom:var(--space-4);">Write a Review</h4>
+                                <div class="star-rating-input" id="star-input">
+                                    <span data-v="1" onclick="setRating(1)">★</span>
+                                    <span data-v="2" onclick="setRating(2)">★</span>
+                                    <span data-v="3" onclick="setRating(3)">★</span>
+                                    <span data-v="4" onclick="setRating(4)">★</span>
+                                    <span data-v="5" onclick="setRating(5)">★</span>
+                                </div>
+                                <textarea id="review-comment" class="form-textarea"
+                                    placeholder="Share your thoughts about this product..." rows="3"
+                                    style="background:white;"></textarea>
+
+                                <div style="margin-top: 15px;">
+                                    <label for="review-images-input" class="btn btn-outline btn-xs"
+                                        style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                                        📷 Add Photos
+                                        <input type="file" id="review-images-input" multiple accept="image/*"
+                                            class="hidden" onchange="handleReviewImagePreview(this)">
+                                    </label>
+                                    <div id="review-upload-preview" class="review-upload-preview"></div>
+                                </div>
+
+                                <button class="btn btn-primary btn-sm" style="margin-top:var(--space-4);"
+                                    onclick="submitReview()" id="review-submit-btn">Submit Review</button>
+                            </div>
+                            <div id="review-login-msg" class="hidden"
+                                style="margin-top:var(--space-6); text-align:center; color:var(--color-text-muted);">
+                                Only verified buyers can leave a review.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error state -->
+            <div id="product-error" class="hidden empty-state">
+                <div class="icon">😔</div>
+                <h3 id="error-title">Product not found</h3>
+                <p id="error-msg">This product may have been removed or the link is incorrect.</p>
+                <a href="/shop" class="btn btn-primary" style="margin-top:var(--space-5);">Browse Products</a>
+            </div>
+        </div>
+    </main>
+
+    <div id="review-lightbox" class="review-lightbox" onclick="closeReviewLightbox()">
+        <div class="review-lightbox-inner" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeReviewLightbox()">✕</button>
+            <div class="review-lightbox-content">
+                <!-- Image Section -->
+                <div class="lightbox-image-section">
+                    <button class="nav-arrow left" onclick="prevImage()">‹</button>
+                    <img id="lightbox-main-image" src="">
+                    <button class="nav-arrow right" onclick="nextImage()">›</button>
+                    <div class="image-counter" id="image-counter"></div>
+                    <div class="lightbox-thumbs" id="lightbox-thumbs"></div>
+                </div>
+                <!-- Review Info -->
+                <div class="lightbox-review-section">
+                    <div id="lightbox-review-details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../js/cache.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/db.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/imgbb.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        let product = null, selectedVariant = null, selectedSize = '';
+        const PRINT_SIZES = ['4×6 inch', '5×7 inch', '6×8 inch', '8×10 inch', '10×12 inch', '12×15 inch', 'A4', 'A3'];
+        const PRINT_CATS = ['Sacred Prints'];
+
+        // Advanced Review Gallery State
+        let currentImages = [];
+        let currentIndex = 0;
+        let allProductReviews = [];
+
+        document.addEventListener('componentsLoaded', async () => {
+
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("id");
+            console.log("Product ID:", productId); // DEBUG: Check browser console
+
+            if (!productId) {
+                showError('Invalid link', 'No product ID found in the URL. Please go back to the shop.');
+                return;
+            }
+
+            try {
+                let snapVal = null;
+                const cachedProducts = window.getCache("products");
+                if (cachedProducts && cachedProducts[productId]) {
+                    snapVal = cachedProducts[productId];
+                } else {
+                    const snap = await firebase.database().ref('products/' + productId).once('value');
+                    if (snap.exists()) snapVal = snap.val();
+                }
+
+                if (!snapVal) {
+                    showError('Product removed', `The product with ID "${productId}" no longer exists in our database.`);
+                    return;
+                }
+
+                product = { id: productId, ...snapVal };
+                renderProduct();
+            } catch (err) {
+                showError('Database Error', 'Could not fetch product details: ' + err.message);
+                console.error("Firebase fetch error:", err);
+            }
+        });
+
+        function showError(title, msg) {
+            document.getElementById('product-skeleton').classList.add('hidden');
+            document.getElementById('product-content').classList.add('hidden'); // Ensure content is hidden
+            document.getElementById('error-title').textContent = title;
+            document.getElementById('error-msg').textContent = msg;
+            document.getElementById('product-error').classList.remove('hidden');
+        }
+
+        function renderProduct() {
+            document.getElementById('product-skeleton').classList.add('hidden');
+            document.getElementById('product-content').classList.remove('hidden');
+
+            document.title = `${product.title} — Devanshik`;
+            document.getElementById('bc-title').textContent = product.title;
+            document.getElementById('product-title').textContent = product.title;
+            document.getElementById('product-desc').textContent = product.description || '';
+            document.getElementById('tab-desc-text').textContent = product.description || '';
+
+            // Gallery
+            const images = product.imageUrls || (product.imageUrl ? [product.imageUrl] : []);
+            const mainImg = document.getElementById('main-img');
+            const thumbStrip = document.getElementById('thumb-strip');
+
+            if (images.length > 0) {
+                mainImg.src = images[0];
+                mainImg.alt = product.title;
+                if (images.length > 1) {
+                    thumbStrip.innerHTML = images.map((url, i) => `
+                        <img src="${url}" class="thumb ${i === 0 ? 'active' : ''}" onclick="changeMainImage(this, '${url}')" alt="">
+                    `).join('');
+                } else {
+                    thumbStrip.innerHTML = '';
+                }
+            } else {
+                mainImg.src = 'https://placehold.co/600x600/F4EFE9/C17B3A?text=No+Image';
+                thumbStrip.innerHTML = '';
+            }
+
+            // Pricing
+            const priceRow = document.getElementById('price-row');
+            if (product.discountPrice && product.discountPrice < product.price) {
+                const offPerc = Math.round(((product.price - product.discountPrice) / product.price) * 100);
+                const savingsAmt = Math.round(product.price - product.discountPrice);
+                priceRow.innerHTML = `
+                    <div class="pdp-price-block">
+                        <div style="display:flex; align-items:baseline; gap:var(--space-3); flex-wrap:wrap;">
+                            <span class="pdp-price-main">${formatCurrency(product.discountPrice)}</span>
+                            <span class="pdp-price-original">${formatCurrency(product.price)}</span>
+                        </div>
+                        <div class="pdp-badge-row">
+                            <span class="pdp-off-chip">${offPerc}% OFF</span>
+                            <span class="pdp-save-callout">You save ${formatCurrency(savingsAmt)}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                priceRow.innerHTML = `<span class="pdp-price-main">${formatCurrency(product.price)}</span>`;
+            }
+
+            // Flash Sale Countdown (shows if an active flash sale covers this product)
+            try {
+                const discounts = await(typeof getActiveDiscounts === 'function' ? getActiveDiscounts() : Promise.resolve([]));
+                const flash = discounts.find(d => d.type === 'flash' && d.active);
+                if (flash && flash.endDate && flash.endDate > Date.now()) {
+                    const cdContainer = document.createElement('div');
+                    cdContainer.id = 'pdp-flash-countdown';
+                    cdContainer.className = 'flash-countdown-pdp';
+                    cdContainer.innerHTML = '<span class="cd-icon">⚡</span><span id="pdp-cd-text">Sale ends soon</span>';
+                    priceRow.appendChild(cdContainer);
+
+                    let pdpCdInterval = null;
+                    function tickPDP() {
+                        const diff = Math.max(0, flash.endDate - Date.now());
+                        if (diff === 0) {
+                            cdContainer.style.display = 'none';
+                            clearInterval(pdpCdInterval);
+                            return;
+                        }
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        const s = Math.floor((diff % 60000) / 1000);
+                        document.getElementById('pdp-cd-text').textContent =
+                            `Ends in ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                        cdContainer.classList.toggle('urgent', diff < 3600000);
+                    }
+                    tickPDP();
+                    pdpCdInterval = setInterval(tickPDP, 1000);
+                }
+            } catch (e) { /* non-blocking */ }
+
+
+            // Category badge
+            document.getElementById('product-cat').textContent = product.category || 'General';
+
+            // Rating summary
+            renderRatingSummary();
+
+            // Product type badge
+            const typeBadge = document.getElementById('type-badge');
+            if (product.productType === 'digital') {
+                typeBadge.textContent = '⚡ Digital';
+                typeBadge.style.cssText += '; background:#EEF2FF; color:#4F46E5;';
+                document.getElementById('digital-info')?.classList.remove('hidden');
+                document.getElementById('stock-badge')?.classList.add('hidden');
+                document.getElementById('size-section')?.classList.add('hidden');
+                // Note: upload-section was removed — no reference needed
+            } else {
+                typeBadge.textContent = '📦 Physical';
+                typeBadge.style.cssText += '; background:#FEF3C7; color:#92400E;';
+                document.getElementById('digital-info')?.classList.add('hidden');
+                const stockEl = document.getElementById('stock-badge');
+                if (stockEl) {
+                    if (product.stock <= 0) {
+                        stockEl.textContent = '● Out of Stock';
+                        stockEl.classList.add('out');
+                        document.getElementById('atc-btn').disabled = true;
+                        document.getElementById('atc-btn').textContent = 'Out of Stock';
+                    } else {
+                        stockEl.textContent = `● In Stock (${product.stock} available)`;
+                        stockEl.classList.remove('out');
+                        document.getElementById('atc-btn').disabled = false;
+                        document.getElementById('atc-btn').textContent = '🛒 Add to Cart';
+                    }
+                }
+            }
+
+            // Sizes implementation
+            const sizeSection = document.getElementById('size-section');
+            const sizeGrid = document.getElementById('size-grid');
+
+            if (product.productType !== 'digital' && product.sizes && product.sizes.length > 0) {
+                sizeSection.classList.remove('hidden');
+                sizeGrid.innerHTML = product.sizes.map((s, i) => `
+                    <button class="size-chip ${i === 0 ? 'active' : ''}" onclick="selectSize(this, ${i})">
+                        ${s.label}
+                    </button>
+                `).join('');
+                // Default to first size
+                selectSize(null, 0);
+            } else if (PRINT_CATS.includes(product.category) && product.productType !== 'digital') {
+                // Legacy support for categories that used default PRINT_SIZES
+                sizeSection.classList.remove('hidden');
+                sizeGrid.innerHTML = PRINT_SIZES.map((s, i) => `
+                    <button class="size-chip ${i === 0 ? 'active' : ''}" onclick="selectSize(this,'${s}')">
+                        ${s}
+                    </button>
+                `).join('');
+                selectedSize = PRINT_SIZES[0];
+            } else {
+                sizeSection.classList.add('hidden');
+                selectedSize = '';
+                selectedVariant = null;
+            }
+
+
+            // Specs
+            const specs = [
+                ['Category', product.category || 'General'],
+                ['Type', product.productType === 'digital' ? '⚡ Digital Download' : '📦 Physical Product'],
+                ['Stock', product.productType === 'digital' ? 'Unlimited' : (product.stock ?? 'Available')],
+                ['Added', formatDateShort(product.createdAt)],
+            ];
+            document.getElementById('spec-rows').innerHTML = specs.map(([k, v]) =>
+                `<div class="spec-row"><span style="font-weight:600;">${k}</span><span style="color:var(--color-text-muted);">${v}</span></div>`
+            ).join('');
+
+            loadReviews();
+            syncDetailWishlist(product.id);
+            initShareFeature();
+
+            // Handle review redirection
+            handleReviewHash();
+        }
+
+        function handleReviewHash() {
+            const hash = window.location.hash;
+            if (!hash.startsWith('#review-')) return;
+
+            const mode = hash.includes('edit') ? 'edit' : 'new';
+            const reviewTabBtn = document.querySelector('button[onclick*="tab-reviews"]');
+
+            if (reviewTabBtn) {
+                // Switch to reviews tab
+                switchTab(reviewTabBtn, 'tab-reviews');
+
+                // Scroll to reviews section
+                const reviewSection = document.getElementById('tab-reviews');
+                if (reviewSection) {
+                    reviewSection.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                if (mode === 'edit') {
+                    const userId = firebase.auth().currentUser?.uid;
+                    if (userId) {
+                        editReview(product.id, userId);
+                    }
+                } else {
+                    // For 'new', ensure form is visible
+                    const formBox = document.getElementById('review-form-container');
+                    if (formBox) {
+                        formBox.classList.remove('hidden');
+                        formBox.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            }
+        }
+
+        function initShareFeature() {
+            const btn = document.getElementById('share-btn');
+            if (!btn) return;
+
+            btn.addEventListener('click', async () => {
+                const title = product?.title || 'Check out this product';
+                const url = window.location.href;
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: title,
+                            text: `Check out ${title} on Devanshik!`,
+                            url: url
+                        });
+                    } catch (err) {
+                        console.log("Share cancelled or failed:", err);
+                    }
+                } else {
+                    // Fallback: Copy to clipboard
+                    try {
+                        await navigator.clipboard.writeText(url);
+                        showToast('Link copied to clipboard! 📋', 'success');
+                    } catch (err) {
+                        showToast('Failed to copy link.', 'error');
+                    }
+                }
+            });
+        }
+
+        function syncDetailWishlist(productId) {
+            const btn = document.getElementById('detail-wishlist-btn');
+            if (!btn) return;
+
+            // Initial state from local storage
+            const list = getWishlistLocal();
+            const inWishlist = list.includes(productId);
+            btn.classList.toggle('active', inWishlist);
+            btn.dataset.productId = productId;
+            btn.title = inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist';
+
+            // Use global handler for consistency
+            if (!btn.dataset.wired) {
+                btn.dataset.wired = "1";
+                btn.addEventListener('click', (e) => handleGlobalWishlist(e, productId));
+            }
+        }
+
+        function renderRatingSummary() {
+            const summaryEl = document.getElementById('rating-summary');
+            const total = product.totalReviews || 0;
+            const avg = total > 0 ? (product.ratingAverage || 0) : 5;
+            const label = total > 0 ? `(${total} review${total !== 1 ? 's' : ''})` : '(New Product)';
+            summaryEl.innerHTML = `
+                <div class="rating-stars">${renderStars(avg)}</div>
+                <span style="font-size:var(--text-sm); font-weight:600;">${avg.toFixed ? avg.toFixed(1) : avg}</span>
+                <span style="font-size:var(--text-sm); color:var(--color-text-muted);">${label}</span>
+            `;
+            document.getElementById('review-count').textContent = total;
+        }
+
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= Math.round(rating) ? '★' : '☆';
+            }
+            return stars;
+        }
+
+        async function loadReviews() {
+            const sortType = document.getElementById('review-sort')?.value || 'newest';
+            const photoOnly = document.getElementById('photo-only')?.checked || false;
+
+            // Fetch reviews if not already loaded or if forced refresh
+            let reviews = await getReviews(product.id, false, sortType);
+            allProductReviews = reviews;
+
+            // Render Review Photos Trigger (Hidden by default or shown if reviews exist)
+            renderTopPhotosTrigger(reviews);
+
+            // Filter for photo only
+            if (photoOnly) {
+                reviews = reviews.filter(r => r.images && r.images.length > 0);
+            }
+
+            const listEl = document.getElementById('reviews-list');
+
+            // Render Breakdown
+            renderStarBreakdown(allProductReviews);
+
+            if (reviews.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align:center; padding:var(--space-8) 0;">
+                        <div style="font-size:2.5rem; margin-bottom:12px;">⭐⭐⭐⭐⭐</div>
+                        <p style="font-weight:600; color:#3a2a1a; margin-bottom:4px;">No reviews found.</p>
+                        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">Try adjusting your filter or be the first to review!</p>
+                    </div>`;
+            } else {
+                listEl.innerHTML = reviews.map(r => {
+                    const currentUserId = firebase.auth().currentUser?.uid;
+                    const isOwner = currentUserId === r.userId || currentUserId === r.id;
+                    const helpfulCount = r.helpful ? Object.keys(r.helpful).length : 0;
+                    const isHelpfulActive = r.helpful && currentUserId && r.helpful[currentUserId];
+
+                    return `
+                        <div class="review-card ${isOwner ? 'my-review' : ''}">
+                            <div class="review-header">
+                                <div class="review-author">
+                                    ${escapeHtml(r.userName || 'Customer')} 
+                                    ${r.verified ? `<span class="verified-badge">✔ Verified Purchase</span>` : ''}
+                                </div>
+                                <div class="review-date">${formatDateShort(r.createdAt)}</div>
+                            </div>
+                            <div class="rating-stars" style="margin-bottom:var(--space-2);">${renderStars(r.rating)}</div>
+                            <div style="font-size:var(--text-sm); line-height:1.6;">${escapeHtml(r.comment)}</div>
+                            
+                            ${(() => {
+                            const visibleImages = r.images ? r.images.filter(img => !r.hiddenImages || !r.hiddenImages.includes(img)) : [];
+                            if (visibleImages.length > 0) {
+                                return `
+                                    <div class="review-images">
+                                        ${visibleImages.map((img) => `<img src="${img}" class="review-thumb" onclick="openReviewLightbox('${product.id}', '${r.userId || r.id}', '${img}')">`).join('')}
+                                    </div>
+                                `;
+                            }
+                            return '';
+                        })()}
+
+                            ${r.hiddenImages && r.hiddenImages.length > 0 && r.images?.length > r.hiddenImages.length ? `
+                                <div style="margin-top:var(--space-2); font-size:10px; color:var(--color-text-muted); font-style:italic;">
+                                    Some images removed by moderator
+                                </div>
+                            ` : ''}
+                            ${r.hiddenImages && r.hiddenImages.length === r.images?.length && r.images.length > 0 ? `
+                                <div style="margin-top:var(--space-2); font-size:10px; color:var(--color-text-muted); font-style:italic;">
+                                    🖼️ Images hidden by moderator
+                                </div>
+                            ` : ''}
+                            
+                            <div class="review-card-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-4);">
+                                <button class="helpful-btn ${isHelpfulActive ? 'active' : ''}" onclick="handleMarkHelpful('${r.userId || r.id}', this)">
+                                    👍 Helpful (${helpfulCount})
+                                </button>
+                                ${isOwner ? `
+                                    <div class="review-owner-actions">
+                                        <button class="btn-text" onclick="editReview('${product.id}', '${r.userId || r.id}')" style="font-size:12px; color:var(--color-primary); background:none; border:none; cursor:pointer;">✏️ Edit</button>
+                                        <button class="btn-text" onclick="handleDeleteReview('${product.id}', '${r.userId || r.id}')" style="font-size:12px; color:#e74c3c; background:none; border:none; cursor:pointer; margin-left:10px;">🗑 Delete</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+    
+                            ${r.adminReply ? `
+                                <div class="admin-reply">
+                                    <strong>Store Response:</strong>
+                                    <p>${escapeHtml(r.adminReply.message)}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Check if user can review
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const reviewStatus = await canUserReview(user.uid, product.id);
+                if (reviewStatus === true || (!reviewStatus?.alreadyReviewed && reviewStatus !== false)) {
+                    document.getElementById('review-form-container').classList.remove('hidden');
+                } else if (reviewStatus?.alreadyReviewed) {
+                    document.getElementById('review-login-msg').textContent = "You've already reviewed this product.";
+                    document.getElementById('review-login-msg').classList.remove('hidden');
+                } else {
+                    document.getElementById('review-login-msg').textContent = "Only verified buyers can leave a review.";
+                    document.getElementById('review-login-msg').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('review-login-msg').classList.remove('hidden');
+            }
+        }
+
+        function renderTopPhotos(reviews) {
+            const container = document.getElementById('top-review-photos');
+            if (!container) return;
+
+            const photoReviews = reviews.filter(r => r.images && r.images.length > 0);
+            if (photoReviews.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            // Flatten images but keep track of review source for lightbox
+            let allPhotos = [];
+            photoReviews.forEach(r => {
+                r.images.forEach((img, idx) => {
+                    // Check if this specific image is hidden
+                    const isHidden = r.hiddenImages && r.hiddenImages.includes(img);
+                    if (!isHidden) {
+                        allPhotos.push({ url: img, userId: r.userId, index: idx });
+                    }
+                });
+            });
+
+            container.innerHTML = allPhotos.slice(0, 10).map(p => `
+                <img src="${p.url}" class="top-photo" onclick="openReviewLightbox('${product.id}', '${p.userId}', '${p.url}')">
+            `).join('');
+        }
+
+        function renderTopPhotosTrigger(reviews) {
+            const hasPhotos = reviews.some(r => r.images && r.images.length > 0);
+            const triggerContainer = document.getElementById('review-photos-trigger-container');
+            if (!triggerContainer) return;
+
+            if (!hasPhotos) {
+                triggerContainer.style.display = 'none';
+                return;
+            }
+
+            triggerContainer.style.display = 'block';
+            triggerContainer.innerHTML = `
+                <button class="btn btn-outline btn-sm" id="view-review-photos-btn" style="margin-bottom: var(--space-4);" onclick="this.style.display='none'; renderTopPhotos(allProductReviews)">
+                    📷 View Customer Photos (${reviews.reduce((acc, r) => acc + (r.images?.length || 0), 0)})
+                </button>
+            `;
+        }
+
+        function renderStarBreakdown(reviews) {
+            const breakdownEl = document.getElementById('star-breakdown');
+            if (!breakdownEl) return;
+
+            if (reviews.length === 0) {
+                breakdownEl.classList.add('hidden');
+                return;
+            }
+            breakdownEl.classList.remove('hidden');
+
+            const counts = [0, 0, 0, 0, 0];
+            reviews.forEach(r => {
+                const rating = Math.min(5, Math.max(1, Number(r.rating) || 1));
+                counts[rating - 1]++;
+            });
+
+            const total = reviews.length;
+            const rows = counts.map((count, i) => {
+                const star = i + 1;
+                const percent = total ? Math.round((count / total) * 100) : 0;
+                return { star, count, percent };
+            }).reverse();
+
+            breakdownEl.innerHTML = `
+                <div style="margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                    <h3 style="font-size:24px; margin:0;">${(product.ratingAverage || 5).toFixed(1)}</h3>
+                    <div>
+                        <div class="rating-stars">${renderStars(product.ratingAverage || 5)}</div>
+                        <div style="font-size:12px; color:var(--color-text-muted);">${total} global ratings</div>
+                    </div>
+                </div>
+                ${rows.map(row => `
+                    <div class="break-row">
+                        <span style="width:25px;">${row.star}★</span>
+                        <div class="bar">
+                            <div class="fill" style="width:${row.percent}%"></div>
+                        </div>
+                        <span style="width:35px; text-align:right; color:var(--color-text-muted);">${row.percent}%</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        let selectedReviewFiles = [];
+        function handleReviewImagePreview(input) {
+            const preview = document.getElementById('review-upload-preview');
+            const files = Array.from(input.files);
+
+            // Limited to 3 images for reviews
+            const newFiles = files.slice(0, 3 - selectedReviewFiles.length);
+            selectedReviewFiles = [...selectedReviewFiles, ...newFiles];
+
+            renderReviewPreviews();
+            input.value = ''; // Reset input to allow re-selecting same file if removed
+        }
+
+        function renderReviewPreviews() {
+            const preview = document.getElementById('review-upload-preview');
+            preview.innerHTML = selectedReviewFiles.map((file, i) => `
+                <div class="preview-item">
+                    <img src="${URL.createObjectURL(file)}">
+                    <div class="remove" onclick="removeReviewFile(${i})">×</div>
+                </div>
+            `).join('');
+        }
+
+        function removeReviewFile(index) {
+            selectedReviewFiles.splice(index, 1);
+            renderReviewPreviews();
+        }
+
+        async function handleMarkHelpful(reviewUserId, btn) {
+            const user = firebase.auth().currentUser;
+            if (!user) { showToast('Please sign in.', 'warning'); return; }
+            if (btn.classList.contains('active') || btn.disabled) return;
+
+            btn.disabled = true;
+            try {
+                await markHelpful(product.id, reviewUserId, user.uid);
+
+                // Fetch latest count to ensure sync
+                const snap = await firebase.database().ref(`reviews/${product.id}/${reviewUserId}`).once('value');
+                if (snap.exists()) {
+                    const review = snap.val();
+                    const newCount = review.helpful ? Object.keys(review.helpful).length : 0;
+                    btn.innerHTML = `👍 Helpful (${newCount})`;
+                    btn.classList.add('active');
+                }
+                showToast('Marked as helpful!', 'success');
+            } catch (err) {
+                console.error("Mark helpful error:", err);
+                btn.disabled = false;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function editReview(pId, uId) {
+            const user = firebase.auth().currentUser;
+            if (!user || user.uid !== uId) return;
+
+            try {
+                const snap = await firebase.database().ref(`reviews/${pId}/${uId}`).once('value');
+                if (!snap.exists()) return;
+                const review = snap.val();
+
+                const formBox = document.getElementById('review-form-container');
+                formBox.classList.remove('hidden');
+                formBox.scrollIntoView({ behavior: 'smooth' });
+
+                document.getElementById('review-comment').value = review.comment || '';
+                setRating(review.rating || 5);
+
+                // Show existing images in preview
+                const preview = document.getElementById('review-upload-preview');
+                uploadedReviewImages = review.images || [];
+                preview.innerHTML = uploadedReviewImages.map(url => `
+                    <div class="preview-item">
+                        <img src="${url}">
+                        <div class="remove" onclick="removeUploadedReviewImage('${url}')">×</div>
+                    </div>
+                `).join('');
+
+                // Set editing state
+                formBox.dataset.mode = 'edit';
+                const submitBtn = document.getElementById('review-submit-btn');
+                submitBtn.textContent = 'Update Review';
+            } catch (err) {
+                showToast('Failed to load review.', 'error');
+            }
+        }
+
+        async function handleDeleteReview(pId, uId) {
+            const user = firebase.auth().currentUser;
+            if (!user || user.uid !== uId) return;
+
+            if (!confirm("Are you sure you want to delete your review?")) return;
+
+            try {
+                await deleteReview(pId, uId);
+                showToast("Review deleted.", "success");
+                loadReviews();
+            } catch (err) {
+                showToast("Delete failed.", "error");
+            }
+        }
+
+        function removeUploadedReviewImage(url) {
+            uploadedReviewImages = uploadedReviewImages.filter(img => img !== url);
+            const preview = document.getElementById('review-upload-preview');
+            preview.innerHTML = uploadedReviewImages.map(u => `
+                <div class="preview-item">
+                    <img src="${u}">
+                    <div class="remove" onclick="removeUploadedReviewImage('${u}')">×</div>
+                </div>
+            `).join('');
+        }
+
+        async function openReviewLightbox(productId, reviewUserId, clickedUrl) {
+            const modal = document.getElementById('review-lightbox');
+            if (!modal) return;
+
+            try {
+                const snap = await firebase.database().ref(`reviews/${productId}/${reviewUserId}`).once('value');
+                if (!snap.exists()) return;
+                const review = snap.val();
+
+                // Filter out hidden images
+                const allImages = review.images || [];
+                const hiddenImages = review.hiddenImages || [];
+                currentImages = allImages.filter(img => !hiddenImages.includes(img));
+
+                // Find index of clicked URL in filtered array
+                currentIndex = currentImages.indexOf(clickedUrl);
+                if (currentIndex === -1) currentIndex = 0; // Fallback
+
+                review.productId = productId;
+                review.userId = reviewUserId;
+
+                updateLightboxImage();
+                renderLightboxThumbs();
+                renderReviewDetails(review);
+
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                console.error("Error opening lightbox:", err);
+            }
+        }
+
+        function updateLightboxImage() {
+            const img = document.getElementById("lightbox-main-image");
+            if (!img) return;
+            img.src = currentImages[currentIndex];
+
+            const counter = document.getElementById("image-counter");
+            if (counter) {
+                counter.innerText = `${currentIndex + 1} / ${currentImages.length}`;
+            }
+        }
+
+        function renderLightboxThumbs() {
+            const container = document.getElementById("lightbox-thumbs");
+            if (!container) return;
+            if (currentImages.length <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'flex';
+            container.innerHTML = currentImages.map((img, i) => `
+                <img src="${img}" class="thumb ${i === currentIndex ? 'active' : ''}" onclick="goToImage(${i})">
+            `).join('');
+        }
+
+        function renderReviewDetails(review) {
+            const details = document.getElementById("lightbox-review-details");
+            if (!details) return;
+
+            const stars = renderStars(review.rating);
+            const currentUserId = firebase.auth().currentUser?.uid;
+            const isOwner = currentUserId === review.userId;
+            const helpfulCount = review.helpful ? Object.keys(review.helpful).length : 0;
+            const isHelpfulActive = review.helpful && currentUserId && review.helpful[currentUserId];
+
+            details.innerHTML = `
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="margin: 0; font-size: 20px; font-weight: 700;">${escapeHtml(review.userName || "Customer")}</h3>
+                        <div>
+                            <span class="rating-stars" style="font-size: 16px;">${stars}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        ${review.verified ? '<span class="verified-badge">✔ Verified Purchase</span>' : ''}
+                    </div>
+                </div>
+                
+                <div style="flex: 1; margin-bottom: 24px;">
+                    <p style="font-size: 15px; line-height: 1.6; color: var(--color-text-main); margin: 0; white-space: pre-wrap;">
+                        ${escapeHtml(review.comment)}
+                    </p>
+                </div>
+
+                ${review.adminReply ? `
+                    <div class="admin-reply" style="margin-bottom: 24px; font-size: 14px; padding: 12px; border-radius: var(--radius-md);">
+                        <strong style="display: block; margin-bottom: 4px; color: var(--color-primary);">Store Response:</strong>
+                        <p style="margin: 0; font-style: italic;">${escapeHtml(review.adminReply.message)}</p>
+                    </div>
+                ` : ''}
+
+                <div class="review-actions" style="border-top: 1px solid var(--color-border); padding-top: 20px; margin-top: auto;">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+                        <button class="helpful-btn-lightbox ${isHelpfulActive ? 'active' : ''}" id="lightbox-helpful-btn" onclick="handleMarkHelpfulLightbox('${review.productId}', '${review.userId}', this)" style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 14px;">
+                            👍 Helpful (${helpfulCount})
+                        </button>
+                        
+                        ${isOwner ? `
+                            <button onclick="editReviewFromLightbox('${review.productId}', '${review.userId}')" style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 14px;">✏️ Edit</button>
+                            <button onclick="deleteReviewFromLightbox('${review.productId}', '${review.userId}')" style="padding: 8px 16px; border: 1px solid #fee2e2; color: #dc2626; border-radius: 20px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 14px;">🗑 Delete</button>
+                        ` : `
+                            <button id="report-btn-lightbox" onclick="reportReviewAction('${review.productId}', '${review.userId}', this)" style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 14px; color: var(--color-text-muted);">🚩 Report</button>
+                        `}
+                    </div>
+                    <span style="font-size: 13px; color: var(--color-text-muted);">
+                        Reviewed on ${new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                </div>
+            `;
+        }
+
+        async function handleMarkHelpfulLightbox(pId, uId, btn) {
+            const user = firebase.auth().currentUser;
+            if (!user) { showToast('Please sign in to vote.', 'warning'); return; }
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            try {
+                await markHelpful(pId, uId, user.uid);
+
+                // Refresh full review data to get sync count
+                const snap = await firebase.database().ref(`reviews/${pId}/${uId}`).once('value');
+                if (snap.exists()) {
+                    const review = snap.val();
+                    const newCount = review.helpful ? Object.keys(review.helpful).length : 0;
+                    btn.innerHTML = `👍 Helpful (${newCount})`;
+                    btn.classList.add('active');
+                }
+
+                showToast('Marked as helpful! 🙏', 'success');
+                loadReviews(); // Refresh background list
+            } catch (err) {
+                showToast('Failed to mark helpful.', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function reportReviewAction(pId, uId, btn) {
+            const user = firebase.auth().currentUser;
+            if (!user) { showToast('Please sign in to report.', 'warning'); return; }
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            try {
+                await reportReview(pId, uId, user.uid);
+                showToast('Review reported to admin. Thank you.', 'success');
+                btn.textContent = '🚩 Reported';
+                btn.style.opacity = '0.5';
+            } catch (err) {
+                showToast('Action failed: ' + err.message, 'error');
+                btn.disabled = false;
+            }
+        }
+
+        function editReviewFromLightbox(pId, uId) {
+            closeReviewLightbox();
+            editReview(pId, uId);
+        }
+
+        async function deleteReviewFromLightbox(pId, uId) {
+            if (!confirm("Are you sure you want to delete your review?")) return;
+            try {
+                await deleteReview(pId, uId);
+                showToast('Review deleted.', 'success');
+                closeReviewLightbox();
+                loadReviews();
+            } catch (err) {
+                showToast('Delete failed.', 'error');
+            }
+        }
+
+        // Global handler for image removal during edit
+        window.removeUploadedReviewImage = function (url) {
+            uploadedReviewImages = uploadedReviewImages.filter(img => img !== url);
+            const preview = document.getElementById('review-upload-preview');
+            if (preview) {
+                preview.innerHTML = uploadedReviewImages.map(u => `
+                    <div class="preview-item">
+                        <img src="${u}">
+                        <div class="remove" onclick="removeUploadedReviewImage('${u}')">×</div>
+                    </div>
+                `).join('');
+            }
+        };
+
+        function nextImage() {
+            if (currentIndex < currentImages.length - 1) {
+                currentIndex++;
+                updateLightboxImage();
+                renderLightboxThumbs();
+            }
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateLightboxImage();
+                renderLightboxThumbs();
+            }
+        }
+
+        function goToImage(i) {
+            currentIndex = i;
+            updateLightboxImage();
+            renderLightboxThumbs();
+        }
+
+        function closeReviewLightbox() {
+            const modal = document.getElementById('review-lightbox');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Swipe Gestures
+        let startX = 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainImg = document.getElementById("lightbox-main-image");
+            if (mainImg) {
+                mainImg.addEventListener("touchstart", e => {
+                    startX = e.touches[0].clientX;
+                });
+
+                mainImg.addEventListener("touchend", e => {
+                    let diff = e.changedTouches[0].clientX - startX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) prevImage();
+                        else nextImage();
+                    }
+                });
+            }
+        });
+
+        let currentRatingInput = 5;
+        function setRating(v) {
+            currentRatingInput = v;
+            document.querySelectorAll('#star-input span').forEach((s, i) => {
+                s.classList.toggle('active', i < v);
+            });
+        }
+
+        async function submitReview() {
+            const user = firebase.auth().currentUser;
+            if (!user) return;
+            const comment = document.getElementById('review-comment').value.trim();
+            if (!comment) { showToast('Please enter a comment', 'warning'); return; }
+
+            const btn = document.getElementById('review-submit-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true; btn.textContent = 'Submitting...';
+
+            try {
+                const formBox = document.getElementById('review-form-container');
+                const isEdit = formBox.dataset.mode === 'edit';
+
+                // Get user and verification status
+                const ud = await getUser(user.uid);
+                const reviewStatus = await canUserReview(user.uid, product.id);
+                const isVerified = (reviewStatus === true) || (reviewStatus && !reviewStatus.alreadyReviewed);
+
+                // Merge existing images with newly uploaded ones
+                let finalImages = [...uploadedReviewImages];
+                if (selectedReviewFiles.length > 0) {
+                    btn.textContent = 'Uploading images...';
+                    const newImages = await Promise.all(selectedReviewFiles.map(async file => {
+                        const result = await uploadImage(file);
+                        return result.url;
+                    }));
+                    finalImages = [...finalImages, ...newImages];
+                }
+
+                await writeReview(product.id, {
+                    userId: user.uid,
+                    userName: ud?.name || user.displayName || user.email,
+                    rating: currentRatingInput,
+                    comment: comment,
+                    images: finalImages,
+                    verified: isVerified
+                });
+
+                showToast(isEdit ? 'Review updated! ✨' : 'Review submitted! Thank you 🙏', 'success');
+
+                if (isEdit) {
+                    delete formBox.dataset.mode;
+                    btn.textContent = 'Submit Review';
+                }
+
+                // Reset form
+                document.getElementById('review-comment').value = '';
+                selectedReviewFiles = [];
+                renderReviewPreviews();
+
+                // Refresh
+                product = await getProduct(product.id);
+                renderRatingSummary();
+                loadReviews();
+                document.getElementById('review-form-container').classList.add('hidden');
+            } catch (err) {
+                showToast('Failed to submit review: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = originalText;
+            }
+        }
+
+        function selectSize(el, indexOrLabel) {
+            if (typeof indexOrLabel === 'number') {
+                // New logic: index into product.sizes
+                selectedVariant = product.sizes[indexOrLabel];
+                selectedSize = selectedVariant.label;
+            } else {
+                // Legacy logic: just a label
+                selectedSize = indexOrLabel;
+                selectedVariant = null;
+            }
+
+            if (el) {
+                document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+            } else if (typeof indexOrLabel === 'number') {
+                // Auto-select first chip if el is null (initial load)
+                const chips = document.querySelectorAll('.size-chip');
+                if (chips.length > indexOrLabel) {
+                    chips.forEach(c => c.classList.remove('active'));
+                    chips[indexOrLabel].classList.add('active');
+                }
+            }
+
+            updatePriceDisplay();
+            updateStockDisplay();
+        }
+
+        function updatePriceDisplay() {
+            const priceRow = document.getElementById('price-row');
+            if (selectedVariant) {
+                // Variant-based pricing
+                priceRow.innerHTML = `<span class="detail-price">${formatCurrency(selectedVariant.price)}</span>`;
+            } else {
+                // fallback to product base price
+                if (product.discountPrice) {
+                    const offPerc = Math.round(((product.price - product.discountPrice) / product.price) * 100);
+                    priceRow.innerHTML = `
+                        <span class="detail-price">${formatCurrency(product.discountPrice)}</span>
+                        <span class="price-original">${formatCurrency(product.price)}</span>
+                        <span class="discount-badge">${offPerc}% OFF</span>
+                    `;
+                } else {
+                    priceRow.innerHTML = `<span class="detail-price">${formatCurrency(product.price)}</span>`;
+                }
+            }
+        }
+
+        function updateStockDisplay() {
+            const stockEl = document.getElementById('stock-badge');
+            const atcBtn = document.getElementById('atc-btn');
+            if (product.productType === 'digital') return;
+
+            let currentStock = product.stock;
+            if (selectedVariant) {
+                currentStock = selectedVariant.stock;
+            }
+
+            if (stockEl) {
+                if (currentStock <= 0) {
+                    stockEl.textContent = '● Out of Stock';
+                    stockEl.classList.add('out');
+                    atcBtn.disabled = true;
+                    atcBtn.textContent = 'Out of Stock';
+                } else {
+                    stockEl.textContent = `● In Stock (${currentStock} available)`;
+                    stockEl.classList.remove('out');
+                    atcBtn.disabled = false;
+                    atcBtn.textContent = '🛒 Add to Cart';
+                }
+            }
+        }
+
+        function changeMainImage(thumb, url) {
+            document.getElementById('main-img').src = url;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+        }
+
+        function changeQty(delta) {
+            const input = document.getElementById('qty-input');
+            input.value = Math.max(1, parseInt(input.value || 1) + delta);
+        }
+
+        async function handleUpload() { /* Upload feature removed */ }
+
+        function handleAddToCart() {
+            if (!product) return;
+            const qty = parseInt(document.getElementById('qty-input').value) || 1;
+
+            const finalPrice = selectedVariant ? selectedVariant.price : (product.discountPrice || product.price);
+
+            addToCart({
+                productId: product.id,
+                title: product.title,
+                price: finalPrice,
+                imageUrl: product.imageUrl,
+                qty,
+                size: selectedSize || '',
+                productType: product.productType || 'physical',
+                downloadFiles: product.downloadFiles || []
+            });
+        }
+
+        function switchTab(btn, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+    </script>
+
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+</body>
+
+</html>

@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page Editor — Admin — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/reset.css">
+    <link rel="stylesheet" href="../../../css/design-system.css">
+    <link rel="stylesheet" href="../../../css/admin.css">
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+    <style>
+        /* ── Product Selector Card Grid ── */
+        .prod-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-3);
+            max-height: 380px;
+            overflow-y: auto;
+            padding: var(--space-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .prod-sel-card {
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-3);
+            cursor: pointer;
+            transition: all .15s;
+            position: relative;
+            background: var(--color-surface);
+        }
+
+        .prod-sel-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .prod-sel-card.selected {
+            border-color: var(--color-primary);
+            background: rgba(193, 123, 58, .06);
+        }
+
+        .prod-sel-card input[type="checkbox"] {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .prod-sel-card img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+            background: var(--color-surface-alt);
+        }
+
+        .prod-sel-card .psc-title {
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .prod-sel-card .psc-price {
+            font-size: 11px;
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .prod-sel-card .psc-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-bottom: 4px;
+        }
+
+        .psc-badge.digital {
+            background: #EEF2FF;
+            color: #4F46E5;
+        }
+
+        .psc-badge.physical {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        /* ── Selected Products List ── */
+        .selected-prod-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            min-height: 48px;
+            padding: var(--space-2);
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            background: var(--color-bg);
+        }
+
+        .sel-prod-chip {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--text-xs);
+            font-weight: 600;
+        }
+
+        .sel-prod-chip img {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .sel-prod-chip button {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .sel-prod-chip button:hover {
+            color: var(--color-danger);
+        }
+
+        /* ── Image size hint ── */
+        .img-hint {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+            margin-top: var(--space-2);
+            line-height: 1.6;
+        }
+
+        .img-hint strong {
+            color: var(--color-text);
+        }
+
+        /* ── Banner type radio ── */
+        .banner-type-row {
+            display: flex;
+            gap: var(--space-6);
+        }
+
+        .banner-type-row label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .banner-type-row input {
+            accent-color: var(--color-primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ── CTA bg type ── */
+        .cta-bg-type-row {
+            display: flex;
+            gap: var(--space-6);
+        }
+
+        .cta-bg-type-row label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cta-bg-type-row input {
+            accent-color: var(--color-primary);
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+    <div id="admin-sidebar-container"></div>
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex;align-items:center;gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">🏠 Landing Page Editor</span>
+            </div>
+            <div class="topbar-actions">
+                <a href="/" class="btn btn-outline btn-sm" target="_blank">View Store →</a>
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div>
+                    <span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-6);">💡 All
+                homepage sections are controlled here. Save per section. Changes reflect instantly on the frontend.</p>
+
+            <!-- ══ 1. HERO BANNERS ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">🎠</span>
+                            <div>
+                                <div class="ls-title">Hero Banners</div>
+                                <div class="ls-subtitle">Wide cinematic banners (Aspect Ratio 2.4:1)</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input" id="hero-enabled"
+                                    checked><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('hero-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="hero-body">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);">
+                            <p style="font-size:var(--text-sm);color:var(--color-text-muted);">
+                                Image-Based Banners. Recommended size: <strong>1920 × 800px</strong> (Aspect Ratio
+                                2.4:1)
+                            </p>
+                            <button class="btn btn-primary btn-sm" onclick="openBannerModal()">+ Add Banner</button>
+                        </div>
+                        <div id="banners-list">
+                            <div class="ls-empty">No banners yet. Add your first banner above.</div>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveHeroEnabled()">Save Hero Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 2. CATEGORIES ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">🗂️</span>
+                            <div>
+                                <div class="ls-title">Shop by Category</div>
+                                <div class="ls-subtitle">Category cards on homepage</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input" id="cat-enabled"
+                                    checked><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('cat-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="cat-body">
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button class="btn btn-primary btn-sm" onclick="openCatModal()">+ Add Category</button>
+                        </div>
+                        <div id="categories-list">
+                            <div class="ls-empty">No categories yet.</div>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveCatSection()">Save Categories</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 3. FEATURED PRODUCTS ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">⭐</span>
+                            <div>
+                                <div class="ls-title">Featured Products</div>
+                                <div class="ls-subtitle">Visually select the products shown on homepage</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input" id="feat-enabled"
+                                    checked><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('feat-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="feat-body">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">Section Title</label>
+                                <input type="text" class="form-input" id="feat-title" value="Featured Products">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Section Subtitle</label>
+                                <input type="text" class="form-input" id="feat-subtitle"
+                                    value="Handpicked divine essentials, beloved by devotees">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Layout</label>
+                            <div class="banner-type-row">
+                                <label><input type="radio" name="feat-layout" value="4" checked
+                                        onchange="updateFeatMax()"> 4 Products (1 row)</label>
+                                <label><input type="radio" name="feat-layout" value="8" onchange="updateFeatMax()"> 8
+                                    Products (2 rows × 4 columns)</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Selected Products <span id="feat-count-label"
+                                    style="color:var(--color-text-muted);font-weight:400;">(0 / 4
+                                    selected)</span></label>
+                            <div class="selected-prod-list" id="selected-prod-list"><span
+                                    style="color:var(--color-text-muted);font-size:var(--text-xs);padding:var(--space-2);">No
+                                    products selected yet.</span></div>
+                        </div>
+                        <div>
+                            <label class="form-label">Choose Products</label>
+                            <input type="text" class="form-input" id="prod-search" placeholder="🔍 Search products…"
+                                oninput="filterProdGrid()" style="margin-bottom:var(--space-3);">
+                            <div class="prod-selector-grid" id="prod-selector-grid">
+                                <div
+                                    style="grid-column:1/-1;text-align:center;padding:var(--space-6);color:var(--color-text-muted);">
+                                    Loading products…</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveFeatured()">Save Featured Products</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 4. STORY SECTION ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">📖</span>
+                            <div>
+                                <div class="ls-title">Story Section</div>
+                                <div class="ls-subtitle">Brand storytelling block (shown above testimonials)</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input"
+                                    id="story-enabled"><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('story-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="story-body">
+                        <div class="form-row-2">
+                            <div class="form-group"><label class="form-label">Title</label><input type="text"
+                                    class="form-input" id="story-title" placeholder="Our Story"></div>
+                            <div class="form-group"><label class="form-label">Subtitle</label><input type="text"
+                                    class="form-input" id="story-subtitle" placeholder="Crafted with devotion"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Content</label><textarea class="form-input"
+                                id="story-content" rows="4" placeholder="Tell your brand story…"
+                                style="resize:vertical;"></textarea></div>
+                        <div class="form-row-2">
+                            <div class="form-group"><label class="form-label">Button Text</label><input type="text"
+                                    class="form-input" id="story-btn-text" placeholder="Learn More"></div>
+                            <div class="form-group"><label class="form-label">Button Link</label><input type="url"
+                                    class="form-input" id="story-btn-link" placeholder="https://…"></div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">Story Image</label>
+                                <div class="admin-upload-zone">
+                                    <input type="file" id="story-img-file" accept="image/*"
+                                        onchange="handleUpload('story-img-file','story-img-url','story-img-preview','story-img-status')">
+                                    📷 Click to upload
+                                </div>
+                                <div class="img-hint">📐 <strong>1200 × 800px</strong> · Max 500KB · JPG / WebP</div>
+                                <div id="story-img-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                                <img id="story-img-preview" class="upload-inline-preview" src="" alt=""
+                                    style="margin-top:var(--space-2);max-height:100px;border-radius:var(--radius-md);">
+                                <input type="hidden" id="story-img-url">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Image Position</label>
+                                <div class="img-pos-toggle">
+                                    <label><input type="radio" name="story-pos" value="left" checked> ◀ Left</label>
+                                    <label><input type="radio" name="story-pos" value="right"> Right ▶</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveStory()">Save Story</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 5. TESTIMONIALS ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">💬</span>
+                            <div>
+                                <div class="ls-title">Testimonials</div>
+                                <div class="ls-subtitle">Customer reviews on homepage</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input" id="testi-enabled"
+                                    checked><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('testi-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="testi-body">
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button class="btn btn-primary btn-sm" onclick="openTestiModal()">+ Add Testimonial</button>
+                        </div>
+                        <div id="testi-list">
+                            <div class="ls-empty">No testimonials yet.</div>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveTestiEnabled()">Save Testimonials</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 6. CTA SECTION ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">📣</span>
+                            <div>
+                                <div class="ls-title">CTA Section</div>
+                                <div class="ls-subtitle">Call-to-action banner at bottom of homepage</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <label class="ls-toggle"><input type="checkbox" class="toggle-input" id="cta-enabled"
+                                    checked><span class="toggle-pill"></span> Enabled</label>
+                            <button class="btn-collapse" onclick="toggleSection('cta-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="cta-body">
+                        <div class="form-row-2">
+                            <div class="form-group"><label class="form-label">Title</label><input type="text"
+                                    class="form-input" id="cta-title" value="Ready to create something divine?"
+                                    oninput="updateCtaPreview()"></div>
+                            <div class="form-group"><label class="form-label">Subtitle</label><input type="text"
+                                    class="form-input" id="cta-subtitle"
+                                    value="Upload your sacred photos and we'll transform them into premium prints."
+                                    oninput="updateCtaPreview()">
+                            </div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group"><label class="form-label">Button Text</label><input type="text"
+                                    class="form-input" id="cta-btn-text" value="Start Your Order 🪔"></div>
+                            <div class="form-group"><label class="form-label">Button Link</label><input type="url"
+                                    class="form-input" id="cta-btn-link" value="/shop"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Background Type</label>
+                            <div class="cta-bg-type-row">
+                                <label><input type="radio" name="cta-bg-type" value="color" checked
+                                        onchange="toggleCtaBgType()"> 🎨 Solid Color</label>
+                                <label><input type="radio" name="cta-bg-type" value="image"
+                                        onchange="toggleCtaBgType()"> 🖼️ Image</label>
+                                <label><input type="radio" name="cta-bg-type" value="gradient"
+                                        onchange="toggleCtaBgType()"> 🌈 Gradient</label>
+                            </div>
+                        </div>
+                        <div id="cta-color-wrap" class="form-group">
+                            <label class="form-label">Background Color</label>
+                            <input type="color" id="cta-bg-color" value="#2C1A0E"
+                                style="width:60px;height:36px;border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;"
+                                oninput="updateCtaPreview()">
+                        </div>
+                        <div id="cta-gradient-wrap" class="form-group" style="display:none;">
+                            <div class="form-row-2" style="margin-bottom:var(--space-3);">
+                                <div class="form-group">
+                                    <label class="form-label">Gradient Type</label>
+                                    <select class="form-input" id="cta-gradient-type" onchange="updateCtaPreview()">
+                                        <option value="linear">Linear</option>
+                                        <option value="radial">Radial</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="cta-gradient-dir-wrap">
+                                    <label class="form-label">Direction (deg)</label>
+                                    <input type="number" class="form-input" id="cta-gradient-dir" value="135"
+                                        oninput="updateCtaPreview()">
+                                </div>
+                            </div>
+                            <div class="form-row-2" style="margin-bottom:var(--space-3);">
+                                <div class="form-group">
+                                    <label class="form-label">Color 1</label>
+                                    <input type="color" id="cta-grad-color1" value="#2C1A0E"
+                                        style="width:100%;height:40px;border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;"
+                                        oninput="updateCtaPreview()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Color 2</label>
+                                    <input type="color" id="cta-grad-color2" value="#8B2252"
+                                        style="width:100%;height:40px;border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;"
+                                        oninput="updateCtaPreview()">
+                                </div>
+                            </div>
+                            <label class="form-label">Presets</label>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:var(--space-4);">
+                                <button class="btn btn-outline btn-xs"
+                                    onclick="applyCtaPreset('#B78628','#F7E98E')">Diwali Gold</button>
+                                <button class="btn btn-outline btn-xs"
+                                    onclick="applyCtaPreset('#2C1A0E','#5C2E0A')">Temple Brown</button>
+                                <button class="btn btn-outline btn-xs"
+                                    onclick="applyCtaPreset('#2C1A0E','#8B2252')">Royal Maroon</button>
+                                <button class="btn btn-outline btn-xs"
+                                    onclick="applyCtaPreset('#FF9A9E','#FECFEF')">Sunset Orange</button>
+                            </div>
+                        </div>
+                        <div id="cta-image-wrap" class="form-group" style="display:none;">
+                            <label class="form-label">Background Image</label>
+                            <div class="admin-upload-zone">
+                                <input type="file" id="cta-bg-file" accept="image/*"
+                                    onchange="handleUpload('cta-bg-file','cta-bg-img-url','cta-bg-preview','cta-bg-status')">
+                                🖼️ Click to upload
+                            </div>
+                            <div class="img-hint">📐 <strong>1920 × 500px</strong> · Max 500KB · JPG / WebP</div>
+                            <div id="cta-bg-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                            <input type="hidden" id="cta-bg-img-url">
+                        </div>
+                        <div id="cta-preview-wrap" class="form-group">
+                            <label class="form-label">CTA Preview (16:5)</label>
+                            <div id="cta-real-preview"
+                                style="width:100%; aspect-ratio:16/5; border-radius:12px; border:1px solid var(--color-border); display:flex; align-items:center; justify-content:center; color:#fff; text-align:center; padding:20px; font-weight:700; background-size:cover; background-position:center;">
+                                <div style="max-width:300px;">
+                                    <div id="cta-preview-title" style="font-size:1.2rem; margin-bottom:4px;">CTA Title
+                                    </div>
+                                    <div id="cta-preview-subtitle"
+                                        style="font-size:0.8rem; font-weight:400; opacity:0.8;">CTA Subtitle</div>
+                                </div>
+                                <img id="cta-bg-preview" src="" style="display:none;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Text Alignment</label>
+                            <select class="form-input" id="cta-text-align" style="width:auto;">
+                                <option value="center">Center</option>
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="ls-footer">
+                        <button class="btn btn-primary btn-sm" onclick="saveCTA()">Save CTA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 7. PAGE BACKGROUNDS ══ -->
+            <div class="landing-block">
+                <div class="landing-section">
+                    <div class="ls-header">
+                        <div class="ls-header-left">
+                            <span class="ls-icon">🖼️</span>
+                            <div>
+                                <div class="ls-title">Page Hero Backgrounds</div>
+                                <div class="ls-subtitle">Shop, Product &amp; Checkout page heroes</div>
+                            </div>
+                        </div>
+                        <div class="ls-header-right">
+                            <button class="btn-collapse" onclick="toggleSection('pagebg-body',this)">Collapse</button>
+                        </div>
+                    </div>
+                    <div class="ls-body" id="pagebg-body">
+                        <div class="hero-bg-grid">
+                            <!-- Shop -->
+                            <div class="hero-bg-card">
+                                <div id="shop-bg-preview-wrap" class="hero-bg-preview-placeholder">🛍️ Shop Hero</div>
+                                <div class="hero-bg-body">
+                                    <div
+                                        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+                                        <strong style="font-size:var(--text-sm);">Shop Page Hero</strong>
+                                        <label class="ls-toggle" style="font-size:var(--text-xs);">
+                                            <input type="checkbox" class="toggle-input" id="shop-bg-enabled" checked>
+                                            <span class="toggle-pill"></span> Enabled
+                                        </label>
+                                    </div>
+                                    <div class="admin-upload-zone"
+                                        style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);">
+                                        <input type="file" id="shop-bg-file" accept="image/*"
+                                            onchange="handlePageHeroUpload('shop')">
+                                        📷 Upload Image
+                                    </div>
+                                    <div class="img-hint">📐 <strong>1920 × 400px</strong> · JPG / WebP</div>
+                                    <div id="shop-bg-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                                    <input type="hidden" id="shop-bg-url">
+                                    <div
+                                        style="display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;">
+                                        <button class="btn btn-primary btn-sm" style="flex:1;"
+                                            onclick="savePageHeroSection('shop')">Save</button>
+                                        <button class="btn btn-ghost btn-sm" onclick="removePageHeroBg('shop')"
+                                            style="color:var(--color-danger);">🗑 Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Product -->
+                            <div class="hero-bg-card">
+                                <div id="product-bg-preview-wrap" class="hero-bg-preview-placeholder">🛒 Product Hero
+                                </div>
+                                <div class="hero-bg-body">
+                                    <div
+                                        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+                                        <strong style="font-size:var(--text-sm);">Product Page Hero</strong>
+                                        <label class="ls-toggle" style="font-size:var(--text-xs);">
+                                            <input type="checkbox" class="toggle-input" id="product-bg-enabled" checked>
+                                            <span class="toggle-pill"></span> Enabled
+                                        </label>
+                                    </div>
+                                    <div class="admin-upload-zone"
+                                        style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);">
+                                        <input type="file" id="product-bg-file" accept="image/*"
+                                            onchange="handlePageHeroUpload('product')">
+                                        📷 Upload Image
+                                    </div>
+                                    <div class="img-hint">📐 <strong>1920 × 400px</strong> · JPG / WebP</div>
+                                    <div id="product-bg-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                                    <input type="hidden" id="product-bg-url">
+                                    <div
+                                        style="display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;">
+                                        <button class="btn btn-primary btn-sm" style="flex:1;"
+                                            onclick="savePageHeroSection('product')">Save</button>
+                                        <button class="btn btn-ghost btn-sm" onclick="removePageHeroBg('product')"
+                                            style="color:var(--color-danger);">🗑 Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Checkout -->
+                            <div class="hero-bg-card">
+                                <div id="checkout-bg-preview-wrap" class="hero-bg-preview-placeholder">💳 Checkout Hero
+                                </div>
+                                <div class="hero-bg-body">
+                                    <div
+                                        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+                                        <strong style="font-size:var(--text-sm);">Checkout Page Hero</strong>
+                                        <label class="ls-toggle" style="font-size:var(--text-xs);">
+                                            <input type="checkbox" class="toggle-input" id="checkout-bg-enabled"
+                                                checked>
+                                            <span class="toggle-pill"></span> Enabled
+                                        </label>
+                                    </div>
+                                    <div class="admin-upload-zone"
+                                        style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);">
+                                        <input type="file" id="checkout-bg-file" accept="image/*"
+                                            onchange="handlePageHeroUpload('checkout')">
+                                        📷 Upload Image
+                                    </div>
+                                    <div class="img-hint">📐 <strong>1920 × 400px</strong> · JPG / WebP</div>
+                                    <div id="checkout-bg-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                                    <input type="hidden" id="checkout-bg-url">
+                                    <div
+                                        style="display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;">
+                                        <button class="btn btn-primary btn-sm" style="flex:1;"
+                                            onclick="savePageHeroSection('checkout')">Save</button>
+                                        <button class="btn btn-ghost btn-sm" onclick="removePageHeroBg('checkout')"
+                                            style="color:var(--color-danger);">🗑 Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /admin-content -->
+    </div><!-- /admin-main -->
+
+    <!-- ══ ADD / EDIT BANNER MODAL ══ -->
+    <div class="modal-overlay" id="banner-modal">
+        <div class="modal" style="max-width:680px;">
+            <div class="modal-header">
+                <h3 id="banner-modal-title">Add Hero Banner</h3>
+                <button class="modal-close" onclick="closeBannerModal()">✕</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--space-4);">
+                <input type="hidden" id="banner-edit-id">
+                <div id="banner-imageonly-fields">
+                    <div class="form-group"><label class="form-label">Click Link (whole banner is
+                            clickable)</label><input type="url" class="form-input" id="banner-link"
+                            placeholder="https://… or /shop"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Banner Image *</label>
+                    <div class="admin-upload-zone">
+                        <input type="file" id="banner-img-file" accept="image/*"
+                            onchange="handleUpload('banner-img-file','banner-img-url','banner-img-preview','banner-img-status')">
+                        🖼️ Click to upload banner image
+                    </div>
+                    <div class="img-hint">Recommended Size: <strong>1920 × 800px</strong> (Aspect Ratio 2.4:1) · Max
+                        500KB · JPG / WebP
+                    </div>
+                    <div class="admin-upload-preview hidden" id="banner-img-preview"></div>
+                    <div id="banner-img-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                    <input type="hidden" id="banner-img-url">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group"><label class="form-label">Alt Text</label><input type="text"
+                            class="form-input" id="banner-alt" placeholder="Describe the banner image…"></div>
+                    <div class="form-group"><label class="form-label">Order (1 = first)</label><input type="number"
+                            class="form-input" id="banner-order" value="1" min="1" style="width:80px;"></div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeBannerModal()">Cancel</button>
+                <button class="btn btn-primary" id="banner-save-btn" onclick="saveBanner()">Add Banner</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ADD / EDIT CATEGORY MODAL ══ -->
+    <div class="modal-overlay" id="cat-modal">
+        <div class="modal" style="max-width:520px;">
+            <div class="modal-header">
+                <h3 id="cat-modal-title">Add Category</h3>
+                <button class="modal-close" onclick="closeCatModal()">✕</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--space-4);">
+                <input type="hidden" id="cat-edit-id">
+                <div class="form-row-2">
+                    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input"
+                            id="cat-name" placeholder="Sacred Prints"></div>
+                    <div class="form-group"><label class="form-label">Slug (URL param)</label><input type="text"
+                            class="form-input" id="cat-slug" placeholder="Sacred+Prints"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Subtitle</label><input type="text" class="form-input"
+                        id="cat-subtitle" placeholder="Deity photos, temple prints…"></div>
+                <div class="form-group">
+                    <label class="form-label">Category Image</label>
+                    <div class="admin-upload-zone">
+                        <input type="file" id="cat-img-file" accept="image/*"
+                            onchange="handleUpload('cat-img-file','cat-img-url','cat-img-preview','cat-img-status')">
+                        📷 Click to upload
+                    </div>
+                    <div class="img-hint">📐 <strong>600 × 600px</strong> (square) · Max 200KB · JPG / WebP</div>
+                    <div class="admin-upload-preview hidden" id="cat-img-preview"></div>
+                    <div id="cat-img-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                    <input type="hidden" id="cat-img-url">
+                </div>
+                <div class="form-group"><label class="form-label">Order</label><input type="number" class="form-input"
+                        id="cat-order" value="1" min="1" style="width:80px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeCatModal()">Cancel</button>
+                <button class="btn btn-primary" id="cat-save-btn" onclick="saveCat()">Add Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ADD / EDIT TESTIMONIAL MODAL ══ -->
+    <div class="modal-overlay" id="testi-modal">
+        <div class="modal" style="max-width:560px;">
+            <div class="modal-header">
+                <h3 id="testi-modal-title">Add Testimonial</h3>
+                <button class="modal-close" onclick="closeTestiModal()">✕</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--space-4);">
+                <input type="hidden" id="testi-edit-id">
+                <div class="form-row-2">
+                    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input"
+                            id="testi-name" placeholder="Rajeshwari M."></div>
+                    <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input"
+                            id="testi-city" placeholder="Chennai"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <div class="star-rating-input" id="testi-stars">
+                        <input type="radio" name="testi-rating" id="r5" value="5"><label for="r5">★</label>
+                        <input type="radio" name="testi-rating" id="r4" value="4"><label for="r4">★</label>
+                        <input type="radio" name="testi-rating" id="r3" value="3"><label for="r3">★</label>
+                        <input type="radio" name="testi-rating" id="r2" value="2"><label for="r2">★</label>
+                        <input type="radio" name="testi-rating" id="r1" value="1" checked><label for="r1">★</label>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Message</label><textarea class="form-input"
+                        id="testi-message" rows="3" placeholder="Ordered a large print… outstanding quality."
+                        style="resize:vertical;"></textarea></div>
+                <div class="form-group">
+                    <label class="form-label">Avatar Image <span
+                            style="font-weight:400;color:var(--color-text-muted);">(optional)</span></label>
+                    <div class="admin-upload-zone">
+                        <input type="file" id="testi-avatar-file" accept="image/*"
+                            onchange="handleUpload('testi-avatar-file','testi-avatar-url','testi-avatar-preview','testi-avatar-status')">
+                        👤 Click to upload avatar
+                    </div>
+                    <div class="img-hint">📐 <strong>300 × 300px</strong> (square) · Max 150KB · JPG / WebP</div>
+                    <div class="admin-upload-preview hidden" id="testi-avatar-preview"></div>
+                    <div id="testi-avatar-status" style="font-size:var(--text-xs);margin-top:4px;"></div>
+                    <input type="hidden" id="testi-avatar-url">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeTestiModal()">Cancel</button>
+                <button class="btn btn-primary" id="testi-save-btn" onclick="saveTesti()">Add Testimonial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../../firebase-config.js"></script>
+    <script src="../../../js/utils.js"></script>
+    <script src="../../../js/auth.js"></script>
+    <script src="../../../js/db.js"></script>
+    <script src="../../../js/imgbb.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script src="landing-editor.js"></script>
+</body>
+
+</html>

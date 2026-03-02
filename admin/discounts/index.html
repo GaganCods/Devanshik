@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discounts — Devanshik Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+    <style>
+        /* ── Discount Tabs ── */
+        .discount-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0;
+            flex-wrap: wrap;
+        }
+
+        .discount-tab {
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--color-text-muted);
+            background: none;
+            border: none;
+            border-bottom: 2.5px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -1px;
+            white-space: nowrap;
+        }
+
+        .discount-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .discount-tab:hover:not(.active) {
+            color: var(--color-text);
+        }
+
+        /* ── Status Badges ── */
+        .ds-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .ds-badge.active {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .ds-badge.draft {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .ds-badge.scheduled {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .ds-badge.expired {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* ── Usage Bar ── */
+        .usage-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .usage-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .usage-bar-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: 4px;
+            transition: width 0.4s;
+        }
+
+        /* ── Discount Form Modal ── */
+        .discount-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(44, 26, 14, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+
+        .discount-modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .discount-modal-header {
+            padding: var(--space-5) var(--space-6);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .discount-modal-body {
+            padding: var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .discount-modal-footer {
+            padding: var(--space-4) var(--space-6);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-3);
+            flex-shrink: 0;
+        }
+
+        /* ── Field grid ── */
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        @media (max-width: 540px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        /* ── Conditional fields ── */
+        .field-condtional {
+            display: none;
+        }
+
+        .field-condtional.visible {
+            display: contents;
+        }
+
+        /* ── Empty state ── */
+        .ds-empty {
+            text-align: center;
+            padding: var(--space-12) var(--space-6);
+            color: var(--color-text-muted);
+        }
+
+        .ds-empty p {
+            margin-top: var(--space-2);
+            font-size: var(--text-sm);
+        }
+
+        /* ── Actions ── */
+        .ds-actions {
+            display: flex;
+            gap: var(--space-2);
+            align-items: center;
+        }
+
+        /* ── Flash fields ── */
+        .flash-info-box {
+            background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+            border: 1px solid #FDE68A;
+            border-radius: var(--radius-lg);
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--text-sm);
+            color: #92400E;
+        }
+
+        /* ── Toggle switch ── */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: var(--color-border);
+            border-radius: 22px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 3px;
+            top: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        input:checked+.toggle-slider {
+            background: var(--color-primary);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: var(--text-sm);
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Discounts & Promotions</span>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary btn-sm" onclick="openDiscountModal()">+ New Discount</button>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- Tabs -->
+            <div class="discount-tabs">
+                <button class="discount-tab active" onclick="switchTab('all', this)">All</button>
+                <button class="discount-tab" onclick="switchTab('coupon', this)">🎟️ Coupons</button>
+                <button class="discount-tab" onclick="switchTab('product_sale', this)">🖼️ Product Sales</button>
+                <button class="discount-tab" onclick="switchTab('flash_sale', this)">⚡ Flash Sales</button>
+                <button class="discount-tab" onclick="switchTab('min_order', this)">🛒 Min-Order</button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="admin-card" style="padding:0; overflow:hidden;">
+                <div id="discounts-loading" style="text-align:center; padding:var(--space-10);">
+                    <div class="spinner"></div>
+                </div>
+                <div id="discounts-table-wrap" class="hidden">
+                    <div class="table-wrap" style="border:none; border-radius:0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name / Code</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                    <th>Validity</th>
+                                    <th>Usage</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="discounts-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div id="discounts-empty" class="ds-empty hidden">
+                        <div style="font-size:2.5rem;">🏷️</div>
+                        <p>No discounts yet. Click <strong>+ New Discount</strong> to create one.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ Discount Form Modal ═════════════════════════════════════════ -->
+    <div id="discount-modal-overlay" class="discount-modal-overlay hidden" onclick="handleOverlayClick(event)">
+        <div class="discount-modal" onclick="event.stopPropagation()">
+            <div class="discount-modal-header">
+                <h3 id="modal-title" style="font-size:var(--text-lg);">New Discount</h3>
+                <button class="btn btn-ghost btn-sm" onclick="closeDiscountModal()">✕</button>
+            </div>
+            <div class="discount-modal-body">
+                <input type="hidden" id="edit-discount-id">
+
+                <!-- Type selector -->
+                <div class="form-group">
+                    <label class="form-label">Discount Type *</label>
+                    <select class="form-input" id="f-type" onchange="handleTypeChange()">
+                        <option value="coupon">🎟️ Coupon Code</option>
+                        <option value="product_sale">🖼️ Product Sale Price</option>
+                        <option value="flash_sale">⚡ Flash Sale</option>
+                        <option value="min_order">🛒 Minimum Order</option>
+                    </select>
+                </div>
+
+                <div class="form-grid-2">
+                    <!-- Internal name -->
+                    <div class="form-group form-full">
+                        <label class="form-label">Internal Name *</label>
+                        <input type="text" class="form-input" id="f-name" placeholder="e.g. Diwali Sale 20%">
+                    </div>
+
+                    <!-- Customer visible label -->
+                    <div class="form-group form-full">
+                        <label class="form-label">Customer Label</label>
+                        <input type="text" class="form-input" id="f-label" placeholder="e.g. 20% Off — Diwali Special">
+                    </div>
+
+                    <!-- ── Coupon-specific ── -->
+                    <div class="form-group field-condtional" id="field-coupon-code">
+                        <label class="form-label">Coupon Code *</label>
+                        <input type="text" class="form-input" id="f-coupon-code" placeholder="SAVE20"
+                            style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+                    </div>
+
+                    <!-- ── Product/flash-specific ── -->
+                    <div class="form-group field-condtional form-full" id="field-product-id">
+                        <label class="form-label">Product ID *</label>
+                        <input type="text" class="form-input" id="f-product-id" placeholder="Firebase product key">
+                        <small class="form-hint">Find the ID in Admin → Products → copy key from URL/table.</small>
+                    </div>
+
+                    <!-- Discount Sub-type -->
+                    <div class="form-group" id="field-discount-type">
+                        <label class="form-label">Discount Sub-type *</label>
+                        <select class="form-input" id="f-discount-type" onchange="handleDiscountTypeChange()">
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (₹)</option>
+                            <option value="free_shipping">Free Shipping</option>
+                        </select>
+                    </div>
+
+                    <!-- Value -->
+                    <div class="form-group" id="field-value">
+                        <label class="form-label" id="f-value-label">Value *</label>
+                        <input type="number" class="form-input" id="f-value" placeholder="20" min="0" step="0.01">
+                    </div>
+
+                    <!-- Cap (percentage only) -->
+                    <div class="form-group field-condtional" id="field-cap">
+                        <label class="form-label">Max Discount Cap (₹)</label>
+                        <input type="number" class="form-input" id="f-cap" placeholder="Optional max savings" min="0">
+                    </div>
+
+                    <!-- Min order -->
+                    <div class="form-group">
+                        <label class="form-label">Min. Cart Value (₹)</label>
+                        <input type="number" class="form-input" id="f-min-order" placeholder="0 = no minimum" min="0">
+                    </div>
+
+                    <!-- Usage limit -->
+                    <div class="form-group field-condtional" id="field-usage-limit">
+                        <label class="form-label">Total Usage Limit</label>
+                        <input type="number" class="form-input" id="f-usage-limit" placeholder="0 = unlimited" min="0">
+                    </div>
+
+                    <!-- Per-user limit -->
+                    <div class="form-group field-condtional" id="field-per-user">
+                        <label class="form-label">Per-User Limit</label>
+                        <input type="number" class="form-input" id="f-per-user" placeholder="0 = unlimited" min="0">
+                    </div>
+
+                    <!-- Start date -->
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="datetime-local" class="form-input" id="f-start-date">
+                    </div>
+
+                    <!-- End date -->
+                    <div class="form-group">
+                        <label class="form-label">End Date</label>
+                        <input type="datetime-local" class="form-input" id="f-end-date">
+                    </div>
+
+                    <!-- Flash banner message -->
+                    <div class="form-group field-condtional form-full" id="field-banner-msg">
+                        <label class="form-label">Flash Sale Banner Message</label>
+                        <input type="text" class="form-input" id="f-banner-msg"
+                            placeholder="e.g. ⚡ Flash Sale: 30% off ends at midnight!">
+                    </div>
+                </div>
+
+                <!-- Flash info -->
+                <div id="flash-info" class="flash-info-box hidden">
+                    ⚡ <strong>Flash Sale</strong> — A countdown banner will appear on your homepage automatically when
+                    this is active.
+                </div>
+
+                <!-- Combinable toggle -->
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="f-combinable">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Allow stacking with other discounts</span>
+                </div>
+
+                <!-- Active toggle -->
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="f-active" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Active (visible to customers)</span>
+                </div>
+
+                <div id="modal-error" class="hidden"
+                    style="background:#FEE2E2; color:var(--color-danger); padding:var(--space-3) var(--space-4); border-radius:var(--radius-md); font-size:var(--text-sm);">
+                </div>
+            </div>
+            <div class="discount-modal-footer">
+                <button class="btn btn-outline btn-sm" onclick="closeDiscountModal()">Cancel</button>
+                <button class="btn btn-primary btn-sm" onclick="saveDiscount()" id="save-discount-btn">Save
+                    Discount</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/db.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        let allDiscounts = [];
+        let currentTab = 'all';
+        let currentUsageMap = {};
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAdminSidebar('/admin/discounts');
+            await requireAdmin();
+            await loadDiscounts();
+        });
+
+        // ─── Load & Render ──────────────────────────────────────────────
+        async function loadDiscounts() {
+            document.getElementById('discounts-loading').classList.remove('hidden');
+            document.getElementById('discounts-table-wrap').classList.add('hidden');
+            try {
+                allDiscounts = await getDiscounts();
+                // Pre-load usage data for coupons
+                const couponDiscounts = allDiscounts.filter(d => d.type === 'coupon' && d.couponCode);
+                const usageResults = await Promise.all(couponDiscounts.map(d => getCouponUsage(d.couponCode)));
+                couponDiscounts.forEach((d, i) => { currentUsageMap[d.couponCode.toUpperCase()] = usageResults[i]; });
+                renderDiscounts();
+            } catch (err) {
+                document.getElementById('discounts-loading').innerHTML = `<p style="color:var(--color-danger);">Error loading discounts: ${err.message}</p>`;
+            }
+        }
+
+        function renderDiscounts() {
+            document.getElementById('discounts-loading').classList.add('hidden');
+            document.getElementById('discounts-table-wrap').classList.remove('hidden');
+
+            const filtered = currentTab === 'all' ? allDiscounts : allDiscounts.filter(d => d.type === currentTab);
+            const tbody = document.getElementById('discounts-tbody');
+            const empty = document.getElementById('discounts-empty');
+
+            if (!filtered.length) {
+                tbody.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            const now = Date.now();
+            tbody.innerHTML = filtered.map(d => {
+                const status = getDiscountStatus(d, now);
+                const usageHtml = buildUsageHtml(d);
+                const valueHtml = buildValueHtml(d);
+                const nameHtml = buildNameHtml(d);
+                const typeLabel = { coupon: '🎟️ Coupon', product_sale: '🖼️ Product Sale', flash_sale: '⚡ Flash Sale', min_order: '🛒 Min-Order' }[d.type] || d.type;
+
+                return `<tr>
+                    <td>${nameHtml}</td>
+                    <td style="white-space:nowrap;">${typeLabel}</td>
+                    <td style="font-weight:700; color:var(--color-primary);">${valueHtml}</td>
+                    <td style="font-size:var(--text-xs); color:var(--color-text-muted);">${buildValidityHtml(d)}</td>
+                    <td>${usageHtml}</td>
+                    <td>${buildStatusBadge(status)}</td>
+                    <td>
+                        <div class="ds-actions">
+                            <button class="btn btn-outline btn-xs" onclick="editDiscount('${d.id}')">Edit</button>
+                            <button class="btn btn-xs ${d.active ? 'btn-outline' : 'btn-primary'}" 
+                                onclick="toggleActive('${d.id}', ${!d.active})" title="${d.active ? 'Deactivate' : 'Activate'}">
+                                ${d.active ? 'Pause' : 'Activate'}
+                            </button>
+                            <button class="btn btn-xs" style="color:var(--color-danger); border-color:var(--color-danger);"
+                                onclick="confirmDelete('${d.id}', '${escapeHtml(d.name || '')}')">Delete</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function getDiscountStatus(d, now) {
+            if (!d.active) return 'draft';
+            if (d.startDate && now < d.startDate) return 'scheduled';
+            if (d.endDate && now > d.endDate) return 'expired';
+            return 'active';
+        }
+
+        function buildStatusBadge(status) {
+            const icons = { active: '●', draft: '○', scheduled: '◷', expired: '✕' };
+            return `<span class="ds-badge ${status}">${icons[status] || ''} ${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+        }
+
+        function buildNameHtml(d) {
+            let html = `<strong>${escapeHtml(d.name || '—')}</strong>`;
+            if (d.couponCode) html += `<br><code style="font-size:11px; background:var(--color-surface-alt); padding:1px 6px; border-radius:4px; font-weight:700; color:var(--color-primary);">${escapeHtml(d.couponCode)}</code>`;
+            if (d.label) html += `<br><span style="font-size:var(--text-xs); color:var(--color-text-muted);">${escapeHtml(d.label)}</span>`;
+            return html;
+        }
+
+        function buildValueHtml(d) {
+            if (d.discountType === 'percentage') return `${d.value}%${d.cap ? ` (max ₹${d.cap})` : ''}`;
+            if (d.discountType === 'fixed') return `₹${d.value}`;
+            if (d.discountType === 'free_shipping') return 'Free Ship';
+            return '—';
+        }
+
+        function buildValidityHtml(d) {
+            const fmt = ts => new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' });
+            if (d.startDate && d.endDate) return `${fmt(d.startDate)} – ${fmt(d.endDate)}`;
+            if (d.endDate) return `Until ${fmt(d.endDate)}`;
+            if (d.startDate) return `From ${fmt(d.startDate)}`;
+            return 'Always';
+        }
+
+        function buildUsageHtml(d) {
+            if (d.type !== 'coupon' || !d.couponCode) return '<span style="color:var(--color-text-muted); font-size:var(--text-xs);">N/A</span>';
+            const usage = currentUsageMap[d.couponCode.toUpperCase()] || {};
+            const used = usage.totalUsed || 0;
+            const limit = d.usageLimit || 0;
+            if (!limit) return `<span style="font-size:var(--text-xs);">${used} used</span>`;
+            const pct = Math.min(100, Math.round(used / limit * 100));
+            return `<div class="usage-bar-wrap">
+                <div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;"></div></div>
+                <span style="font-size:var(--text-xs); white-space:nowrap;">${used}/${limit}</span>
+            </div>`;
+        }
+
+        // ─── Tab Switching ──────────────────────────────────────────────
+        function switchTab(tab, btn) {
+            currentTab = tab;
+            document.querySelectorAll('.discount-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            renderDiscounts();
+        }
+
+        // ─── Modal ──────────────────────────────────────────────────────
+        function openDiscountModal(discountId = null) {
+            clearForm();
+            if (discountId) {
+                const d = allDiscounts.find(x => x.id === discountId);
+                if (d) prefillForm(d);
+                document.getElementById('modal-title').textContent = 'Edit Discount';
+            } else {
+                document.getElementById('modal-title').textContent = 'New Discount';
+            }
+            handleTypeChange();
+            handleDiscountTypeChange();
+            document.getElementById('discount-modal-overlay').classList.remove('hidden');
+        }
+
+        function closeDiscountModal() {
+            document.getElementById('discount-modal-overlay').classList.add('hidden');
+        }
+
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('discount-modal-overlay')) closeDiscountModal();
+        }
+
+        function clearForm() {
+            document.getElementById('edit-discount-id').value = '';
+            document.getElementById('f-type').value = 'coupon';
+            document.getElementById('f-name').value = '';
+            document.getElementById('f-label').value = '';
+            document.getElementById('f-coupon-code').value = '';
+            document.getElementById('f-product-id').value = '';
+            document.getElementById('f-discount-type').value = 'percentage';
+            document.getElementById('f-value').value = '';
+            document.getElementById('f-cap').value = '';
+            document.getElementById('f-min-order').value = '';
+            document.getElementById('f-usage-limit').value = '';
+            document.getElementById('f-per-user').value = '';
+            document.getElementById('f-start-date').value = '';
+            document.getElementById('f-end-date').value = '';
+            document.getElementById('f-banner-msg').value = '';
+            document.getElementById('f-combinable').checked = false;
+            document.getElementById('f-active').checked = true;
+            document.getElementById('modal-error').classList.add('hidden');
+        }
+
+        function prefillForm(d) {
+            document.getElementById('edit-discount-id').value = d.id;
+            document.getElementById('f-type').value = d.type || 'coupon';
+            document.getElementById('f-name').value = d.name || '';
+            document.getElementById('f-label').value = d.label || '';
+            document.getElementById('f-coupon-code').value = d.couponCode || '';
+            document.getElementById('f-product-id').value = d.productId || '';
+            document.getElementById('f-discount-type').value = d.discountType || 'percentage';
+            document.getElementById('f-value').value = d.value || '';
+            document.getElementById('f-cap').value = d.cap || '';
+            document.getElementById('f-min-order').value = d.minOrder || '';
+            document.getElementById('f-usage-limit').value = d.usageLimit || '';
+            document.getElementById('f-per-user').value = d.perUserLimit || '';
+            document.getElementById('f-start-date').value = d.startDate ? new Date(d.startDate).toISOString().slice(0, 16) : '';
+            document.getElementById('f-end-date').value = d.endDate ? new Date(d.endDate).toISOString().slice(0, 16) : '';
+            document.getElementById('f-banner-msg').value = d.bannerMessage || '';
+            document.getElementById('f-combinable').checked = !!d.combinable;
+            document.getElementById('f-active').checked = d.active !== false;
+        }
+
+        function editDiscount(id) {
+            openDiscountModal(id);
+        }
+
+        // ─── Type Change Handlers ────────────────────────────────────────
+        function handleTypeChange() {
+            const type = document.getElementById('f-type').value;
+
+            // Show/hide conditional fields
+            document.getElementById('field-coupon-code').classList.toggle('visible', type === 'coupon');
+            document.getElementById('field-product-id').classList.toggle('visible', type === 'product_sale' || type === 'flash_sale');
+            document.getElementById('field-usage-limit').classList.toggle('visible', type === 'coupon');
+            document.getElementById('field-per-user').classList.toggle('visible', type === 'coupon');
+            document.getElementById('field-banner-msg').classList.toggle('visible', type === 'flash_sale');
+            document.getElementById('flash-info').classList.toggle('hidden', type !== 'flash_sale');
+
+            // Disable free_shipping for non-coupon
+            const dtSel = document.getElementById('f-discount-type');
+            const freeShipOpt = dtSel.querySelector('option[value="free_shipping"]');
+            if (freeShipOpt) freeShipOpt.disabled = (type !== 'coupon');
+            if (type !== 'coupon' && dtSel.value === 'free_shipping') dtSel.value = 'percentage';
+
+            handleDiscountTypeChange();
+        }
+
+        function handleDiscountTypeChange() {
+            const subType = document.getElementById('f-discount-type').value;
+            const valueGroup = document.getElementById('field-value');
+            const capField = document.getElementById('field-cap');
+            const label = document.getElementById('f-value-label');
+
+            if (subType === 'free_shipping') {
+                valueGroup.style.display = 'none';
+                capField.classList.remove('visible');
+            } else {
+                valueGroup.style.display = '';
+                label.textContent = subType === 'percentage' ? 'Discount % *' : 'Discount Amount (₹) *';
+                capField.classList.toggle('visible', subType === 'percentage');
+            }
+        }
+
+        // ─── Save ────────────────────────────────────────────────────────
+        async function saveDiscount() {
+            const errEl = document.getElementById('modal-error');
+            errEl.classList.add('hidden');
+
+            const type = document.getElementById('f-type').value;
+            const name = document.getElementById('f-name').value.trim();
+            const discountType = document.getElementById('f-discount-type').value;
+            const value = parseFloat(document.getElementById('f-value').value) || 0;
+            const couponCode = document.getElementById('f-coupon-code').value.trim().toUpperCase();
+
+            if (!name) { showModalError('Internal name is required.'); return; }
+            if (type === 'coupon' && !couponCode) { showModalError('Coupon code is required.'); return; }
+            if (discountType !== 'free_shipping' && value <= 0) { showModalError('Discount value must be greater than 0.'); return; }
+            if (discountType === 'percentage' && value > 100) { showModalError('Percentage cannot exceed 100%.'); return; }
+
+            const productId = document.getElementById('f-product-id').value.trim();
+            if ((type === 'product_sale' || type === 'flash_sale') && !productId) {
+                showModalError('Product ID is required for product/flash sale discounts.');
+                return;
+            }
+
+            const startDateVal = document.getElementById('f-start-date').value;
+            const endDateVal = document.getElementById('f-end-date').value;
+
+            const data = {
+                type,
+                name,
+                label: document.getElementById('f-label').value.trim() || name,
+                discountType,
+                value: discountType === 'free_shipping' ? 0 : value,
+                cap: parseFloat(document.getElementById('f-cap').value) || 0,
+                minOrder: parseFloat(document.getElementById('f-min-order').value) || 0,
+                usageLimit: parseInt(document.getElementById('f-usage-limit').value) || 0,
+                perUserLimit: parseInt(document.getElementById('f-per-user').value) || 0,
+                startDate: startDateVal ? new Date(startDateVal).getTime() : null,
+                endDate: endDateVal ? new Date(endDateVal).getTime() : null,
+                combinable: document.getElementById('f-combinable').checked,
+                active: document.getElementById('f-active').checked,
+                bannerMessage: document.getElementById('f-banner-msg').value.trim() || null,
+                productId: productId || null,
+                couponCode: type === 'coupon' ? couponCode : null,
+            };
+
+            const btn = document.getElementById('save-discount-btn');
+            btn.disabled = true; btn.textContent = 'Saving…';
+
+            try {
+                const editId = document.getElementById('edit-discount-id').value;
+                await writeDiscount(data, editId || null);
+                closeDiscountModal();
+                showToast(editId ? 'Discount updated!' : 'Discount created!', 'success');
+                await loadDiscounts();
+            } catch (err) {
+                showModalError('Failed to save: ' + err.message);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Save Discount';
+            }
+        }
+
+        function showModalError(msg) {
+            const el = document.getElementById('modal-error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        // ─── Toggle Active ───────────────────────────────────────────────
+        async function toggleActive(id, newState) {
+            try {
+                await toggleDiscountActive(id, newState);
+                showToast(newState ? 'Discount activated.' : 'Discount paused.', 'success');
+                await loadDiscounts();
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            }
+        }
+
+        // ─── Delete ──────────────────────────────────────────────────────
+        async function confirmDelete(id, name) {
+            if (!confirm(`Delete discount "${name}"? This cannot be undone.`)) return;
+            try {
+                await deleteDiscount(id);
+                showToast('Discount deleted.', 'success');
+                await loadDiscounts();
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

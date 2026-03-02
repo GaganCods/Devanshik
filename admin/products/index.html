@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — Admin — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <style>
+        .search-bar {
+            display: flex;
+            gap: var(--space-3);
+            flex: 1;
+            max-width: 320px;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body class="admin-body">
+    <!-- ═══ SIDEBAR (loaded dynamically) ═══════════════════════════ -->
+    <div id="admin-sidebar-container"></div>
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Products</span>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary btn-sm" onclick="openModal()">+ Add Product</button>
+                <button class="btn btn-ghost btn-sm" onclick="cleanDatabase()"
+                    title="Remove corrupt/flat data from Firebase">🧹 Clean DB</button>
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div><span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>All Products <span id="product-count-badge" class="badge badge-processing"
+                            style="margin-left:var(--space-2);">0</span></h3>
+                    <div class="search-bar">
+                        <input type="text" class="form-input" id="search-input" placeholder="Search products…"
+                            oninput="filterTable()" style="font-size:var(--text-sm);">
+                    </div>
+                </div>
+                <div id="table-loading" style="text-align:center; padding:var(--space-8);">
+                    <div class="spinner"></div>
+                </div>
+                <div id="products-table" class="hidden">
+                    <div class="table-wrap" style="border:none; border-radius:0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Added</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ADD / EDIT MODAL ══════════════════════════════════════ -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Product</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-id">
+                <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+                    <div class="form-group">
+                        <label class="form-label">Product Title *</label>
+                        <input type="text" class="form-input" id="f-title" placeholder="e.g. Lord Ganesha A4 Print">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Type *</label>
+                        <select class="form-select" id="f-type" onchange="updateCategories()">
+                            <option value="physical">Physical</option>
+                            <option value="digital">Digital</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select class="form-select" id="f-category"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="f-desc" placeholder="Product description…"
+                            rows="3"></textarea>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4);">
+                        <div class="form-group">
+                            <label class="form-label">Price (₹) *</label>
+                            <input type="number" class="form-input" id="f-price" placeholder="299" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Discount Price (₹)</label>
+                            <input type="number" class="form-input" id="f-discount" placeholder="Optional" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Images</label>
+                        <div class="admin-upload-zone" id="prod-upload-zone">
+                            <input type="file" id="f-image-file" accept="image/*" onchange="handleProdImageUpload()">
+                            <div>📷</div>
+                            <p style="font-size:var(--text-sm); margin-top:var(--space-2);">Click to upload image</p>
+                        </div>
+                        <div id="upload-status-msg" style="font-size:var(--text-xs); margin-top:var(--space-2);"></div>
+
+                        <div style="margin-top:var(--space-4);">
+                            <label class="form-label" style="font-size:var(--text-xs);">Images Gallery Preview</label>
+                            <div id="image-gallery-preview"
+                                style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-top:var(--space-2);">
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="f-image-urls-json" value="[]">
+
+                    <div class="form-group" id="stock-group">
+                        <label class="form-label">Stock Quantity</label>
+                        <input type="number" class="form-input" id="f-stock" placeholder="100" min="0" value="100">
+                    </div>
+                    <div class="form-group" id="size-management-group">
+                        <label class="form-label">Product Sizes (Physical Only)</label>
+                        <div
+                            style="display:flex; gap:var(--space-2); margin-bottom:var(--space-3); align-items:flex-end;">
+                            <div style="flex:1;">
+                                <label style="font-size:10px; opacity:0.7; display:block; margin-bottom:4px;">Label (A4,
+                                    A3...)</label>
+                                <input type="text" class="form-input" id="size-label" placeholder="e.g. A4">
+                            </div>
+                            <div style="width:100px;">
+                                <label style="font-size:10px; opacity:0.7; display:block; margin-bottom:4px;">Price
+                                    (₹)</label>
+                                <input type="number" class="form-input" id="size-price" placeholder="459">
+                            </div>
+                            <div style="width:80px;">
+                                <label
+                                    style="font-size:10px; opacity:0.7; display:block; margin-bottom:4px;">Stock</label>
+                                <input type="number" class="form-input" id="size-stock" placeholder="10">
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addSizeToList()"
+                                style="height:42px;">Add</button>
+                        </div>
+                        <div id="sizes-list-container" style="display:flex; flex-direction:column; gap:var(--space-2);">
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="digital-group">
+                        <label class="form-label">Download Files (One URL per line) *</label>
+                        <textarea class="form-textarea" id="f-download" placeholder="e.g. https://drive.google.com/…"
+                            rows="2"></textarea>
+                        <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:4px;">Direct
+                            download links for the customer.</p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProduct()" id="save-btn">Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/db.js"></script>
+    <script src="../../js/imgbb.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        let allProducts = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadAdminSidebar('/admin/products');
+
+            const user = await requireAdmin();
+            const ud = await getUser(user.uid);
+            const name = ud?.name || user.email;
+            document.getElementById('admin-name').textContent = name;
+            document.getElementById('admin-avatar').textContent = name.charAt(0).toUpperCase();
+            loadProducts();
+        });
+
+        async function loadProducts() {
+            try {
+                allProducts = await getProducts();
+                console.log('[Admin] Loaded products:', allProducts.length, allProducts);
+                document.getElementById('table-loading').classList.add('hidden');
+                document.getElementById('products-table').classList.remove('hidden');
+                document.getElementById('product-count-badge').textContent = allProducts.length;
+                renderTable(allProducts);
+            } catch (err) {
+                console.error('[Admin] Load error:', err);
+                document.getElementById('table-loading').innerHTML = `<p style="color:var(--color-danger); padding:var(--space-4);">Could not load products: ${err.message}</p>`;
+            }
+        }
+
+        // Remove any flat/corrupt product nodes from Firebase (not proper push-key objects)
+        async function cleanDatabase() {
+            if (!confirm('This will remove any corrupt/flat product data in Firebase. Real products (with push-keys) are safe. Continue?')) return;
+            try {
+                const snap = await firebase.database().ref('products').once('value');
+                const removals = [];
+                snap.forEach(child => {
+                    const val = child.val();
+                    // If child has no title field, it's a corrupt flat entry
+                    if (!val || typeof val !== 'object' || !val.title) {
+                        removals.push(firebase.database().ref('products/' + child.key).remove());
+                    }
+                });
+                await Promise.all(removals);
+                showToast(`Cleaned ${removals.length} corrupt entries. ✓`, 'success');
+                loadProducts();
+            } catch (err) {
+                showToast('Cleanup failed: ' + err.message, 'error');
+            }
+        }
+
+        function renderTable(list) {
+            document.getElementById('products-tbody').innerHTML = list.length
+                ? list.map(p => `
+          <tr>
+            <td><img class="prod-thumb-sm" src="${p.imageUrl || 'https://placehold.co/50x50/F4EFE9/C17B3A?text=P'}" alt="${p.title}"></td>
+            <td style="font-weight:600; max-width:200px;">
+                <a href="/product/?id=${p.id}" target="_blank" style="color:inherit; text-decoration:none;">${p.title}</a>
+                <div style="font-size:10px; opacity:0.7;">${p.productType === 'digital' ? '⚡ Digital' : '📦 Physical'}</div>
+            </td>
+            <td><span class="badge" style="background:var(--color-surface-alt);color:var(--color-primary);">${p.category}</span></td>
+            <td style="font-weight:700; color:var(--color-primary);">${formatCurrency(p.price)}</td>
+            <td>${p.productType === 'digital' ? '∞' : (p.stock ?? '—')}</td>
+            <td>${formatDateShort(p.createdAt)}</td>
+            <td><div class="action-btns"><button class="btn-edit" onclick='openModal(${JSON.stringify(p)})'>✏️ Edit</button><button class="btn-delete" onclick="deleteP('${p.id}')">🗑 Delete</button></div></td>
+          </tr>`).join('')
+                : `<tr><td colspan="7" style="text-align:center; padding:var(--space-8); color:var(--color-text-muted);">No products yet. Add your first product!</td></tr>`;
+        }
+
+        function filterTable() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            renderTable(allProducts.filter(p => p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)));
+        }
+
+        function openModal(product = null) {
+            document.getElementById('edit-id').value = product?.id || '';
+            document.getElementById('f-title').value = product?.title || '';
+            document.getElementById('f-type').value = product?.productType || 'physical';
+
+            updateCategories(product?.category);
+
+            document.getElementById('f-price').value = product?.price || '';
+            document.getElementById('f-discount').value = product?.discountPrice || '';
+            document.getElementById('f-stock').value = product?.stock ?? 100;
+            document.getElementById('f-download').value = (product?.downloadFiles || []).join('\n');
+            document.getElementById('f-desc').value = product?.description || '';
+
+            // Multiple images
+            currentImageUrls = product?.imageUrls || (product?.imageUrl ? [product.imageUrl] : []);
+            renderImageGallery();
+
+            // Dynamic sizes
+            currentSizes = product?.sizes || [];
+            renderSizesList();
+
+            document.getElementById('modal-title').textContent = product ? 'Edit Product' : 'Add Product';
+
+            toggleTypeFields();
+            document.getElementById('upload-status-msg').textContent = '';
+            document.getElementById('product-modal').classList.add('active');
+        }
+
+        let currentImageUrls = [];
+        let currentSizes = [];
+
+        function renderImageGallery() {
+            const container = document.getElementById('image-gallery-preview');
+            container.innerHTML = currentImageUrls.map((url, i) => `
+                <div style="display:flex; align-items:center; gap:var(--space-3); width:100%; padding:var(--space-2); background:var(--color-surface-alt); border-radius:var(--radius-md); border:1px solid var(--color-border);">
+                    <img src="${url}" style="width:40px; height:40px; border-radius:var(--radius-sm); object-fit:cover;">
+                    <div style="flex:1; font-size:var(--text-xs); color:var(--color-text-muted); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                        Image ${i + 1} ${i === 0 ? '(Main)' : ''}
+                    </div>
+                    <div style="display:flex; gap:var(--space-1);">
+                        <button type="button" onclick="moveImage(${i}, 'up')" class="btn btn-outline" style="padding:2px 6px; font-size:10px; min-width:unset;" ${i === 0 ? 'disabled' : ''}>↑</button>
+                        <button type="button" onclick="moveImage(${i}, 'down')" class="btn btn-outline" style="padding:2px 6px; font-size:10px; min-width:unset;" ${i === currentImageUrls.length - 1 ? 'disabled' : ''}>↓</button>
+                        <button type="button" onclick="removeImage(${i})" class="btn btn-outline" style="padding:2px 6px; font-size:10px; min-width:unset; color:var(--color-danger); border-color:var(--color-danger);">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveImage(index, direction) {
+            if (direction === 'up' && index > 0) {
+                [currentImageUrls[index - 1], currentImageUrls[index]] = [currentImageUrls[index], currentImageUrls[index - 1]];
+            } else if (direction === 'down' && index < currentImageUrls.length - 1) {
+                [currentImageUrls[index + 1], currentImageUrls[index]] = [currentImageUrls[index], currentImageUrls[index + 1]];
+            }
+            renderImageGallery();
+        }
+
+        function removeImage(index) {
+
+            currentImageUrls.splice(index, 1);
+            renderImageGallery();
+        }
+
+        function renderSizesList() {
+            const container = document.getElementById('sizes-list-container');
+            container.innerHTML = currentSizes.map((s, i) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-2) var(--space-3); background:var(--color-surface-alt); border-radius:var(--radius-md); font-size:var(--text-sm);">
+                    <span><strong>${s.label}</strong> — ₹${s.price} (Stock: ${s.stock})</span>
+                    <button onclick="removeSize(${i})" style="color:var(--color-danger); border:none; background:none; cursor:pointer; font-size:var(--text-xs);">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function addSizeToList() {
+            const label = document.getElementById('size-label').value.trim();
+            const price = parseFloat(document.getElementById('size-price').value);
+            const stock = parseInt(document.getElementById('size-stock').value) || 0;
+            if (!label) { showToast('Enter size label', 'warning'); return; }
+            if (isNaN(price)) { showToast('Enter valid price', 'warning'); return; }
+            currentSizes.push({ label, price, stock });
+            document.getElementById('size-label').value = '';
+            document.getElementById('size-price').value = '';
+            document.getElementById('size-stock').value = '';
+            renderSizesList();
+        }
+
+        function removeSize(index) {
+            currentSizes.splice(index, 1);
+            renderSizesList();
+        }
+
+
+        const categories = {
+            physical: ['Frames', 'Posters', 'Canvas Prints', 'Photo Prints', 'Spiritual Wall Art', 'Accessories'],
+            digital: ['Mobile Wallpaper', 'Desktop Wallpaper', 'Tablet Wallpaper', 'Printable Poster', 'Digital Art Pack', 'Social Media Template', 'Lock Screen Wallpaper', 'Ultra HD Wallpaper Pack']
+        };
+
+        function updateCategories(selected = null) {
+            const type = document.getElementById('f-type').value;
+            const catSelect = document.getElementById('f-category');
+            const list = categories[type] || [];
+            catSelect.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (selected) catSelect.value = selected;
+            toggleTypeFields();
+        }
+
+        function toggleTypeFields() {
+            const type = document.getElementById('f-type').value;
+            const stockGroup = document.getElementById('stock-group');
+            const digitalGroup = document.getElementById('digital-group');
+            const sizeGroup = document.getElementById('size-management-group');
+
+            if (type === 'digital') {
+                stockGroup.classList.add('hidden');
+                sizeGroup.classList.add('hidden');
+                digitalGroup.classList.remove('hidden');
+            } else {
+                stockGroup.classList.remove('hidden');
+                sizeGroup.classList.remove('hidden');
+                digitalGroup.classList.add('hidden');
+            }
+        }
+
+        function closeModal() { document.getElementById('product-modal').classList.remove('active'); }
+
+        async function handleProdImageUpload() {
+            const file = document.getElementById('f-image-file').files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('upload-status-msg');
+            statusEl.innerHTML = '<span style="color:var(--color-primary);">⏳ Uploading…</span>';
+            try {
+                const r = await uploadImage(file);
+                currentImageUrls.push(r.url);
+                renderImageGallery();
+                statusEl.innerHTML = '<span style="color:var(--color-success);">✓ Uploaded</span>';
+            } catch (err) {
+                statusEl.innerHTML = `<span style="color:var(--color-danger);">✕ ${err.message}</span>`;
+            }
+        }
+
+
+        async function saveProduct() {
+            const title = document.getElementById('f-title').value.trim();
+            const price = parseFloat(document.getElementById('f-price').value);
+            const discountPrice = parseFloat(document.getElementById('f-discount').value) || null;
+            const productType = document.getElementById('f-type').value;
+            const stock = productType === 'digital' ? 999999 : (parseInt(document.getElementById('f-stock').value) || 0);
+            const downloadFiles = document.getElementById('f-download').value.split('\n').map(l => l.trim()).filter(l => l);
+            const description = document.getElementById('f-desc').value.trim();
+
+            if (productType === 'digital' && downloadFiles.length === 0) {
+                showToast('At least one download URL is required for digital products', 'error');
+                return;
+            }
+
+            const { valid, errors } = validateProductInput({ title, price, stock, description });
+            if (!valid) { showToast(errors[0], 'error'); return; }
+
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true; btn.textContent = 'Saving…';
+
+            const data = {
+                title,
+                category: document.getElementById('f-category').value,
+                price,
+                discountPrice,
+                stock,
+                productType,
+                downloadFiles,
+                description,
+                imageUrls: currentImageUrls,
+                imageUrl: currentImageUrls[0] || '', // Fallback for legacy code
+                sizes: currentSizes
+            };
+
+
+            try {
+                const editId = document.getElementById('edit-id').value;
+                await writeProduct(data, editId || null);
+                showToast(editId ? 'Product updated! ✓' : 'Product added! ✓', 'success');
+                closeModal();
+                loadProducts();
+            } catch (err) {
+                showToast('Save failed: ' + err.message, 'error');
+            } finally { btn.disabled = false; btn.textContent = 'Save Product'; }
+        }
+
+        async function deleteP(id) {
+            if (!confirm('Delete this product?')) return;
+            try { await deleteProduct(id); showToast('Deleted.'); loadProducts(); }
+            catch (err) { showToast('Delete failed: ' + err.message, 'error'); }
+        }
+
+        async function adminSignOut() { await signOutUser(); window.location.href = '/login'; }
+    </script>
+</body>
+
+</html>

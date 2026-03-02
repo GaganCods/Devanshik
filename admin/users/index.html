@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users — Admin — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body class="admin-body">
+    <!-- ═══ SIDEBAR (loaded dynamically) ═══════════════════════════ -->
+    <div id="admin-sidebar-container"></div>
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Users</span>
+            </div>
+            <div class="topbar-actions">
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div><span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div
+                style="display:flex; gap:var(--space-3); margin-bottom:var(--space-5); align-items:center; flex-wrap:wrap;">
+                <input type="text" class="form-input" id="user-search" placeholder="Search by name or email…"
+                    oninput="filterUsers()" style="flex:1; max-width:320px; font-size:var(--text-sm);">
+                <select class="form-select" id="role-filter" onchange="filterUsers()" style="width:auto;">
+                    <option value="">All Roles</option>
+                    <option value="customer">Customers</option>
+                    <option value="admin">Admins</option>
+                </select>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>All Users <span id="user-count-badge" class="badge badge-processing">0</span></h3>
+                </div>
+                <div id="users-loading" style="text-align:center; padding:var(--space-8);">
+                    <div class="spinner"></div>
+                </div>
+                <div id="users-table" class="hidden">
+                    <div class="table-wrap" style="border:none; border-radius:0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal-overlay" id="user-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="user-modal-name">User Details</h3>
+                <button class="modal-close" onclick="closeUserModal()">✕</button>
+            </div>
+            <div class="modal-body" id="user-modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeUserModal()">Close</button>
+                <button class="btn btn-primary" id="view-orders-btn" onclick="viewUserOrders()">View Orders</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/db.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        let allUsers = [], selectedUserId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadAdminSidebar('/admin/users');
+
+            const user = await requireAdmin();
+            const ud = await getUser(user.uid);
+            const name = ud?.name || user.email;
+            document.getElementById('admin-name').textContent = name;
+            document.getElementById('admin-avatar').textContent = name.charAt(0).toUpperCase();
+            loadUsers();
+        });
+
+        async function loadUsers() {
+            try {
+                allUsers = await getUsers();
+                document.getElementById('users-loading').classList.add('hidden');
+                document.getElementById('users-table').classList.remove('hidden');
+                document.getElementById('user-count-badge').textContent = allUsers.length;
+                renderUsers(allUsers);
+            } catch (err) {
+                console.error('Users load error:', err);
+                document.getElementById('users-loading').innerHTML = `<p style="color:var(--color-danger); padding:var(--space-4);">Could not load users. Check Firebase.<br><small style="opacity:0.7;">${err.message || ''}</small></p>`;
+            }
+        }
+
+        function renderUsers(list) {
+            document.getElementById('users-tbody').innerHTML = list.length
+                ? list.map(u => {
+                    const name = u.name || u.email || 'Unknown';
+                    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                    return `
+            <tr>
+              <td><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:var(--text-sm);">${initials}</div></td>
+              <td style="font-weight:600;">${name}</td>
+              <td style="color:var(--color-text-muted);">${u.email || '—'}</td>
+              <td>${u.role === 'admin' ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-processing">Customer</span>'}</td>
+              <td>${formatDateShort(u.createdAt)}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-edit" onclick="openUserModal('${u.id}')">👁 View</button>
+                  ${u.role !== 'admin'
+                            ? `<button class="btn-edit" onclick="toggleRole('${u.id}','admin')" title="Promote to Admin">⬆ Admin</button>`
+                            : `<button class="btn-delete" onclick="toggleRole('${u.id}','user')" title="Demote to User">⬇ User</button>`}
+                </div>
+              </td>
+            </tr>`;
+                }).join('')
+                : `<tr><td colspan="6" style="text-align:center; padding:var(--space-8); color:var(--color-text-muted);">No users found.</td></tr>`;
+        }
+
+        function filterUsers() {
+            const q = document.getElementById('user-search').value.toLowerCase();
+            const role = document.getElementById('role-filter').value;
+            renderUsers(allUsers.filter(u => {
+                const matchQ = !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
+                const matchRole = !role || u.role === role;
+                return matchQ && matchRole;
+            }));
+        }
+
+        async function toggleRole(uid, role) {
+            const action = role === 'admin' ? 'promote to Admin' : 'demote to Customer';
+            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+            try {
+                await updateUserRole(uid, role);
+                showToast(`Role updated to ${role}`, 'success');
+                const idx = allUsers.findIndex(u => u.id === uid);
+                if (idx >= 0) allUsers[idx].role = role;
+                filterUsers();
+            } catch (err) { showToast('Could not update role: ' + err.message, 'error'); }
+        }
+
+        async function openUserModal(uid) {
+            selectedUserId = uid;
+            const u = allUsers.find(x => x.id === uid);
+            if (!u) return;
+            document.getElementById('user-modal-name').textContent = u.name || u.email || 'User';
+            document.getElementById('user-modal-body').innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4);">
+          <div><div class="form-label">Name</div><div>${u.name || '—'}</div></div>
+          <div><div class="form-label">Email</div><div>${u.email || '—'}</div></div>
+          <div><div class="form-label">Phone</div><div>${u.phone || '—'}</div></div>
+          <div><div class="form-label">Role</div><div>${u.role === 'admin' ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-processing">Customer</span>'}</div></div>
+          <div><div class="form-label">Joined</div><div>${formatDate(u.createdAt)}</div></div>
+          ${u.address ? `<div style="grid-column:1/-1;"><div class="form-label">Saved Address</div><div>${[u.address.line1, u.address.line2, u.address.city, u.address.state, u.address.pin].filter(Boolean).join(', ')}</div></div>` : ''}
+        </div>`;
+            document.getElementById('user-modal').classList.add('active');
+        }
+
+        function closeUserModal() { document.getElementById('user-modal').classList.remove('active'); }
+
+        function viewUserOrders() {
+            if (selectedUserId) window.location.href = `/admin/orders?uid=${selectedUserId}`;
+        }
+
+        async function adminSignOut() { await signOutUser(); window.location.href = '/login'; }
+    </script>
+</body>
+
+</html>

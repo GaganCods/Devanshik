@@ -1,0 +1,28 @@
+﻿<!-- ═══ REUSABLE ADMIN SIDEBAR ════════════════════════════════════
+     Load with: loadAdminSidebar('/admin/products')      (from load-components.js)
+     The function marks the matching <a> as .active automatically.
+     ════════════════════════════════════════════════════════════ -->
+<aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+        <div class="admin-logo" style="display: flex; justify-content: flex-start; padding: 12px 20px;">
+            <img src="/assets/images/logo.png" alt="Devanshik Logo" style="height: 48px; width: auto;">
+        </div>
+        <div class="admin-role-badge">👑 Admin</div>
+    </div>
+    <nav class="admin-nav">
+        <div class="admin-nav-section">Main</div>
+        <a href="/admin" data-path="/admin"><span class="admin-nav-icon">📊</span> Dashboard</a>
+        <div class="admin-nav-section">Manage</div>
+        <a href="/admin/products" data-path="/admin/products"><span class="admin-nav-icon">🖼️</span> Products</a>
+        <a href="/admin/orders" data-path="/admin/orders"><span class="admin-nav-icon">📦</span> Orders</a>
+        <a href="/admin/pages/landing-editor/" data-path="/admin/pages/landing-editor"><span
+                class="admin-nav-icon">🏠</span> Landing Page</a>
+        <a href="/admin/users" data-path="/admin/users"><span class="admin-nav-icon">👥</span> Users</a>
+        <a href="/admin/reviews" data-path="/admin/reviews"><span class="admin-nav-icon">⭐</span> Reviews</a>
+        <a href="/admin/discounts" data-path="/admin/discounts"><span class="admin-nav-icon">🏷️</span> Discounts</a>
+    </nav>
+    <div class="admin-sidebar-footer">
+        <a href="/">🏠 View Store</a>
+        <a href="#" onclick="adminSignOut()" style="margin-top:var(--space-3);">🚪 Sign Out</a>
+    </div>
+</aside>

@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body class="admin-body">
+
+    <!-- ═══ SIDEBAR (loaded dynamically) ═══════════════════════════ -->
+    <div id="admin-sidebar-container"></div>
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Dashboard</span>
+            </div>
+            <div class="topbar-actions">
+                <a href="/shop" class="btn btn-outline btn-sm" target="_blank">View Store →</a>
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div>
+                    <span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- Stat Cards -->
+            <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="stat-card">
+                    <div class="stat-icon orders">📦</div>
+                    <div class="stat-info">
+                        <h3 id="stat-orders">—</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon users">👥</div>
+                    <div class="stat-info">
+                        <h3 id="stat-users">—</h3>
+                        <p>Registered Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue">₹</div>
+                    <div class="stat-info">
+                        <h3 id="stat-revenue">—</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pending">⏳</div>
+                    <div class="stat-info">
+                        <h3 id="stat-pending">—</h3>
+                        <p>Pending Orders</p>
+                    </div>
+                </div>
+                <!-- New Stat Cards -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:var(--color-surface-alt); color:var(--color-primary);">⚡
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-digital-prods">—</h3>
+                        <p>Digital Products</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:var(--color-surface-alt); color:var(--color-secondary);">📦
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-physical-prods">—</h3>
+                        <p>Physical Products</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>Recent Orders</h3>
+                    <a href="orders/index.html" class="btn btn-outline btn-sm">View All</a>
+                </div>
+                <div id="recent-orders-loading" style="text-align:center; padding:var(--space-8);">
+                    <div class="spinner"></div>
+                </div>
+                <div id="recent-orders-table" class="hidden">
+                    <div class="table-wrap" style="border:none; border-radius:0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/db.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadAdminSidebar('/admin');
+
+            const user = await requireAdmin();
+            const userData = await getUser(user.uid);
+            const name = userData?.name || user.email;
+            document.getElementById('admin-name').textContent = name;
+
+            // Show profile photo or initial in topbar
+            const avatarEl = document.getElementById('admin-avatar');
+            if (userData?.profileImage) {
+                avatarEl.innerHTML = `<img src="${userData.profileImage}" alt="${name.charAt(0).toUpperCase()}"
+                    style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+
+            loadStats();
+            loadRecentOrders();
+        });
+
+        async function loadStats() {
+            try {
+                const stats = await getDashboardStats();
+                const orders = await getOrders();
+                const pending = orders.filter(o => (o.orderStatus || 'Pending').toLowerCase() === 'pending').length;
+                document.getElementById('stat-orders').textContent = stats.totalOrders;
+                document.getElementById('stat-users').textContent = stats.totalUsers;
+                document.getElementById('stat-revenue').textContent = formatCurrency(stats.totalRevenue);
+                document.getElementById('stat-pending').textContent = pending;
+
+                // Set new stats
+                document.getElementById('stat-digital-prods').textContent = stats.digitalProducts || 0;
+                document.getElementById('stat-physical-prods').textContent = stats.physicalProducts || 0;
+            } catch (err) {
+                console.error('Stats load error:', err);
+                ['stat-orders', 'stat-users', 'stat-revenue', 'stat-pending', 'stat-digital-prods', 'stat-physical-prods'].forEach(id => document.getElementById(id).textContent = 'Err');
+            }
+        }
+
+        async function loadRecentOrders() {
+            try {
+                const orders = (await getOrders()).slice(0, 10);
+                document.getElementById('recent-orders-loading').classList.add('hidden');
+                document.getElementById('recent-orders-table').classList.remove('hidden');
+
+                if (!orders.length) {
+                    document.getElementById('recent-orders-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:var(--space-8); color:var(--color-text-muted);">No orders yet.</td></tr>`;
+                    return;
+                }
+                document.getElementById('recent-orders-tbody').innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>${shortOrderId(o.id)}</strong></td>
+            <td>${o.address?.fullName || o.userEmail || 'Guest'}</td>
+            <td>${(o.products || []).length} item${(o.products || []).length !== 1 ? 's' : ''}</td>
+            <td style="color:var(--color-primary); font-weight:700;">${formatCurrency(o.totalAmount || 0)}</td>
+            <td>${statusBadge(o.orderStatus)}</td>
+            <td>${formatDateShort(o.createdAt)}</td>
+          </tr>`).join('');
+            } catch {
+                document.getElementById('recent-orders-loading').innerHTML = `<p style="color:var(--color-danger); font-size:var(--text-sm);">Could not load orders. Check Firebase config.</p>`;
+            }
+        }
+
+        async function adminSignOut() {
+            await signOutUser();
+            window.location.href = '../login.html';
+        }
+    </script>
+</body>
+
+</html>

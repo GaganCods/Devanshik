@@ -1,0 +1,559 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop — Devanshik | Sacred Prints & Spiritual Essentials</title>
+    <meta name="description"
+        content="Browse our collection of sacred photo prints, spiritual frames, memory albums, and divine accessories.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .page-hero {
+            background: linear-gradient(135deg, #2C1A0E, #5C2E0A);
+            padding: var(--space-10) 0;
+        }
+
+        .page-hero h1 {
+            color: #fff;
+            font-size: var(--text-3xl);
+            margin-bottom: var(--space-2);
+        }
+
+        .page-hero p {
+            color: rgba(255, 255, 255, .7);
+        }
+
+        .filter-toggle-btn {
+            display: none;
+        }
+
+        /* Desktop filter layout */
+        @media (min-width: 901px) {
+            .filter-panel {
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-xl);
+                padding: var(--space-6);
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+
+                position: sticky;
+                top: calc(var(--header-height) + 20px);
+                height: fit-content;
+                max-height: calc(100vh - var(--header-height) - 40px);
+                overflow-y: auto;
+                display: block !important;
+                transform: none !important;
+            }
+
+            .filter-panel h3 {
+                font-size: var(--text-xl);
+                margin-bottom: var(--space-4);
+                font-weight: 700;
+            }
+
+            .filter-group {
+                margin-bottom: var(--space-6);
+            }
+
+            .filter-group h4 {
+                font-size: var(--text-sm);
+                font-weight: 600;
+                margin-bottom: var(--space-3);
+                color: var(--color-text-muted);
+            }
+
+            .filter-option {
+                display: flex;
+                align-items: center;
+                gap: var(--space-2);
+                margin-bottom: var(--space-2);
+                cursor: pointer;
+                font-size: var(--text-sm);
+            }
+
+            .filter-option input[type="radio"] {
+                accent-color: var(--color-primary);
+                cursor: pointer;
+            }
+
+            .filter-option label {
+                cursor: pointer;
+                transition: color 0.2s ease;
+            }
+
+            .filter-option:hover label {
+                color: var(--color-primary);
+            }
+
+            .price-range input {
+                border-radius: var(--radius-md);
+            }
+
+            .filter-panel .btn-ghost {
+                border-radius: var(--radius-md);
+                font-weight: 500;
+            }
+
+            .filter-overlay {
+                display: none !important;
+            }
+        }
+
+        /* Mobile filter drawer */
+        @media (max-width: 900px) {
+            .filter-toggle-btn {
+                display: flex;
+            }
+
+            .filter-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #fff;
+                z-index: 2000;
+                max-height: 85vh;
+                overflow-y: auto;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                padding: var(--space-6);
+            }
+
+            .filter-panel.open {
+                transform: translateY(0);
+            }
+
+            .filter-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 1999;
+                display: none;
+            }
+
+            .filter-overlay.active {
+                display: block;
+            }
+        }
+
+        .products-area {
+            min-height: 400px;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-surface-alt) 25%, #ece7e0 50%, var(--color-surface-alt) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-xl);
+        }
+
+        @keyframes shimmer {
+            from {
+                background-position: 200% center;
+            }
+
+            to {
+                background-position: -200% center;
+            }
+        }
+
+        .price-range {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+
+        .price-range input {
+            width: 80px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .type-badge.digital {
+            background: #EEF2FF;
+            color: #4F46E5;
+        }
+
+        .type-badge.physical {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body>
+    <div id="page-loader" class="page-loader hidden">
+        <div class="spinner"></div>
+        <span class="brand">Devanshik</span>
+    </div>
+
+    <!-- Dynamic Header -->
+    <div id="header-container"></div>
+
+    <!-- ═══ PAGE HERO ════════════════════════════════════════════ -->
+    <div class="page-hero">
+        <div class="container">
+            <div class="breadcrumb" style="color:rgba(255,255,255,.5);">
+                <a href="/" style="color:rgba(255,255,255,.5);">Home</a>
+                <span class="breadcrumb-sep">/</span>
+                <span style="color:#fff;" id="bc-category">All Products</span>
+            </div>
+            <h1 id="page-title">All Products</h1>
+            <p id="page-subtitle">Discover our divine collection of sacred prints & spiritual essentials</p>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+    <main class="section">
+        <div class="container">
+            <button class="btn btn-outline filter-toggle-btn" id="filter-toggle-btn" onclick="toggleFilters()"
+                style="margin-bottom:var(--space-4); gap:var(--space-2);">
+                <span class="icon icon-filter" aria-hidden="true"></span> Filters
+            </button>
+
+            <div class="products-layout">
+                <div class="filter-overlay" id="filter-overlay" onclick="toggleFilters()"></div>
+                <!-- ── Filters ── -->
+                <aside class="filter-panel" id="filter-panel">
+                    <h3>Filters</h3>
+
+                    <div class="filter-group">
+                        <h4>Product Type</h4>
+                        <div class="filter-option"><input type="radio" name="ptype" id="ptype-all" value="" checked
+                                onchange="onTypeChange()"><label for="ptype-all">All Types</label></div>
+                        <div class="filter-option"><input type="radio" name="ptype" id="ptype-physical" value="physical"
+                                onchange="onTypeChange()"><label for="ptype-physical">Physical Products</label></div>
+                        <div class="filter-option"><input type="radio" name="ptype" id="ptype-digital" value="digital"
+                                onchange="onTypeChange()"><label for="ptype-digital">Digital Products</label></div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Category</h4>
+                        <div id="category-filter-list">
+                            <div class="filter-option"><input type="radio" name="cat" id="cat-all" value="" checked
+                                    onchange="applyFilters()"><label for="cat-all">All Categories</label></div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Price Range</h4>
+                        <div class="price-range">
+                            <input type="number" class="form-input" id="min-price" placeholder="₹Min" min="0"
+                                oninput="applyFilters()">
+                            <span style="color:var(--color-text-muted);">—</span>
+                            <input type="number" class="form-input" id="max-price" placeholder="₹Max" min="0"
+                                oninput="applyFilters()">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Min Rating</h4>
+                        <div class="filter-option"><input type="radio" name="rating" id="r-all" value="0" checked
+                                onchange="applyFilters()"><label for="r-all">Any Rating</label></div>
+                        <div class="filter-option"><input type="radio" name="rating" id="r-4" value="4"
+                                onchange="applyFilters()"><label for="r-4">4★ & above</label></div>
+                        <div class="filter-option"><input type="radio" name="rating" id="r-3" value="3"
+                                onchange="applyFilters()"><label for="r-3">3★ & above</label></div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Deals &amp; Discounts</h4>
+                        <div class="filter-option">
+                            <input type="checkbox" id="on-sale-filter" onchange="applyFilters()"
+                                style="accent-color:var(--color-primary); cursor:pointer;">
+                            <label for="on-sale-filter"
+                                style="cursor:pointer; font-weight:600; color:var(--color-text);">🏷️ On Sale
+                                Only</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-ghost btn-sm w-full" onclick="clearFilters()"
+                        style="margin-top:var(--space-4);">Clear Filters</button>
+                </aside>
+
+                <!-- ── Products ── -->
+                <div>
+                    <!-- Sale Banner (shown when on-sale filter is active or there are active discounts) -->
+                    <div id="shop-sale-banner" class="sale-page-banner" style="display:none;">
+                        <span class="banner-badge">SALE</span>
+                        <span>Selected items are on sale — no coupon needed at checkout!</span>
+                    </div>
+
+                    <!-- Shop Search Bar -->
+                    <div class="shop-search-wrapper" style="margin-bottom: var(--space-4);">
+                        <div class="search-input-wrapper" style="position: relative;">
+                            <span class="icon icon-search"
+                                style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);"></span>
+                            <input type="text" id="shop-search-input" class="form-input"
+                                placeholder="Search products..."
+                                style="padding-left: 44px; padding-right: 16px; height: 48px; font-size: 16px; border-radius: var(--radius-lg); width: 100%;"
+                                oninput="applyFiltersDebounced()">
+                        </div>
+                    </div>
+
+                    <div class="toolbar">
+                        <span class="toolbar-info" id="product-count">Loading…</span>
+                        <select class="form-select" id="sort-select" style="width:auto;" onchange="applyFilters()">
+                            <option value="newest">Newest First</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <div class="product-grid products-area" id="products-grid">
+                        <div class="skeleton" style="height:320px;"></div>
+                        <div class="skeleton" style="height:320px;"></div>
+                        <div class="skeleton" style="height:320px;"></div>
+                        <div class="skeleton" style="height:320px;"></div>
+                        <div class="skeleton" style="height:320px;"></div>
+                        <div class="skeleton" style="height:320px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../js/cache.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/db.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        let allProducts = [];
+
+        document.addEventListener('componentsLoaded', async () => {
+            // Apply shop hero background from CMS
+            try {
+                const theme = await getSiteTheme();
+                const shopHero = theme?.pageHeroes?.shop;
+                const hero = document.querySelector('.page-hero');
+                if (hero && shopHero && shopHero.enabled && shopHero.imageUrl) {
+                    hero.style.background = `url(${shopHero.imageUrl}) center/cover no-repeat`;
+                }
+                // Apply festival theme colors
+                if (theme?.activeTheme && theme.activeTheme !== 'none') {
+                    const t = theme.themes?.[theme.activeTheme];
+                    if (t?.primaryColor) document.documentElement.style.setProperty('--color-primary', t.primaryColor);
+                    if (t?.accentColor) document.documentElement.style.setProperty('--color-accent', t.accentColor);
+                }
+            } catch (e) { /* non-blocking */ }
+
+            const urlCat = getParam('category');
+            const hash = window.location.hash.replace('#', '');
+
+            if (hash === 'physical' || hash === 'digital') {
+                const typeRadio = document.querySelector(`input[name="ptype"][value="${hash}"]`);
+                if (typeRadio) {
+                    typeRadio.checked = true;
+                    onTypeChange(); // rebuild categories based on type
+                }
+            }
+
+            if (urlCat) {
+                document.querySelectorAll('input[name="cat"]').forEach(r => {
+                    r.checked = r.value === urlCat;
+                });
+                document.getElementById('bc-category').textContent = urlCat;
+                document.getElementById('page-title').textContent = urlCat;
+            }
+
+            const urlSearch = getParam('search');
+            if (urlSearch) {
+                const searchInput = document.getElementById('shop-search-input');
+                if (searchInput) searchInput.value = urlSearch;
+            }
+
+            try {
+                allProducts = await getProducts();
+                // Populate the fuzzy search index from already-loaded products
+                if (typeof buildSearchIndex === 'function' && allProducts.length) {
+                    // Mirror into APP_CACHE so buildSearchIndex can read from it
+                    if (!window.APP_CACHE) window.APP_CACHE = {};
+                    if (!window.APP_CACHE.products) {
+                        window.APP_CACHE.products = {};
+                        allProducts.forEach(p => { if (p.id) window.APP_CACHE.products[p.id] = p; });
+                    }
+                    buildSearchIndex();
+                }
+                applyFilters();
+            } catch (err) {
+                document.getElementById('products-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">⚠️</div><h3>Could not load products</h3><p>Please configure Firebase.</p></div>`;
+                document.getElementById('product-count').textContent = '';
+            }
+        });
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash === 'physical' || hash === 'digital') {
+                const typeRadio = document.querySelector(`input[name="ptype"][value="${hash}"]`);
+                if (typeRadio) {
+                    typeRadio.checked = true;
+                    onTypeChange();
+                }
+            } else if (!hash) {
+                document.getElementById('ptype-all').checked = true;
+                onTypeChange();
+            }
+        });
+
+        const categoriesMap = {
+            physical: ['Frames', 'Posters', 'Canvas Prints', 'Photo Prints', 'Spiritual Wall Art', 'Accessories'],
+            digital: ['Mobile Wallpaper', 'Desktop Wallpaper', 'Tablet Wallpaper', 'Printable Poster', 'Digital Art Pack', 'Social Media Template', 'Lock Screen Wallpaper', 'Ultra HD Wallpaper Pack']
+        };
+
+        const applyFiltersDebounced = debounce(() => applyFilters(), 300);
+
+        function onTypeChange() {
+            const ptype = document.querySelector('input[name="ptype"]:checked')?.value || '';
+            const listEl = document.getElementById('category-filter-list');
+            let cats = [];
+            if (ptype === 'physical') cats = categoriesMap.physical;
+            else if (ptype === 'digital') cats = categoriesMap.digital;
+            else cats = [...categoriesMap.physical, ...categoriesMap.digital];
+
+            listEl.innerHTML = `<div class="filter-option"><input type="radio" name="cat" id="cat-all" value="" checked onchange="applyFilters()"><label for="cat-all">All Categories</label></div>` +
+                cats.map((c, i) => `
+                <div class="filter-option">
+                    <input type="radio" name="cat" id="cat-${i}" value="${c}" onchange="applyFilters()">
+                    <label for="cat-${i}">${c}</label>
+                </div>`).join('');
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const cat = document.querySelector('input[name="cat"]:checked')?.value || '';
+            const ptype = document.querySelector('input[name="ptype"]:checked')?.value || '';
+            const min = parseFloat(document.getElementById('min-price').value) || 0;
+            const max = parseFloat(document.getElementById('max-price').value) || Infinity;
+            const rating = parseFloat(document.querySelector('input[name="rating"]:checked')?.value) || 0;
+            const sort = document.getElementById('sort-select').value;
+            const onSaleOnly = document.getElementById('on-sale-filter')?.checked || false;
+            const searchInput = document.getElementById('shop-search-input');
+            const query = searchInput ? searchInput.value.trim() : '';
+
+            // Show/hide sale banner
+            const saleBanner = document.getElementById('shop-sale-banner');
+            if (saleBanner) saleBanner.style.display = onSaleOnly ? 'flex' : 'none';
+
+            // Build a score map from fuzzy search if query is present
+            let scoreMap = {};
+            let fuzzyIds = null;
+            if (query && typeof smartSearch === 'function' && typeof SEARCH_INDEX !== 'undefined' && SEARCH_INDEX.length) {
+                const fuzzyResults = smartSearch(query, 200); // generous limit to cover all matches
+                fuzzyIds = new Set(fuzzyResults.map(r => r.id));
+                fuzzyResults.forEach(r => { scoreMap[r.id] = r.score; });
+            }
+
+            let list = allProducts.filter(p => {
+                if (ptype && p.productType !== ptype) return false;
+                if (cat && p.category !== cat) return false;
+                const price = p.discountPrice || p.price;
+                if (price < min || price > max) return false;
+                if ((p.ratingAverage || 0) < rating) return false;
+                if (onSaleOnly && !(p.discountPrice && p.discountPrice < p.price)) return false;
+
+                // Text filtering: use fuzzy search if index is ready, fallback to includes()
+                if (query) {
+                    if (fuzzyIds) {
+                        if (!fuzzyIds.has(p.id)) return false;
+                    } else {
+                        const text = `${p.title || p.name || ''} ${p.category || ''} ${p.description || ''}`.toLowerCase();
+                        if (!text.includes(query.toLowerCase())) return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Sort: fuzzy score takes priority when a query is active, unless price sort is chosen
+            if (sort === 'price-asc') {
+                list.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+            } else if (sort === 'price-desc') {
+                list.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+            } else if (query && Object.keys(scoreMap).length) {
+                list.sort((a, b) => (scoreMap[b.id] || 0) - (scoreMap[a.id] || 0));
+            } else {
+                list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            }
+
+            renderProducts(list);
+            document.getElementById('product-count').textContent = `${list.length} product${list.length !== 1 ? 's' : ''}`;
+
+            if (window.innerWidth <= 900) {
+                const panel = document.getElementById('filter-panel');
+                const overlay = document.getElementById('filter-overlay');
+                if (panel.classList.contains('open')) {
+                    panel.classList.remove('open');
+                    overlay.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleFilters() {
+            const panel = document.getElementById('filter-panel');
+            const overlay = document.getElementById('filter-overlay');
+            panel.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function renderProducts(list) {
+            const grid = document.getElementById('products-grid');
+            if (!list.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🔍</div><h3>No products found</h3><p>Try changing your filters.</p></div>`;
+                return;
+            }
+            grid.innerHTML = list.map(p => renderProductCard(p)).join('');
+        }
+
+        function quickAdd(e, id, title, price, img, productType, downloadFiles) {
+            handleGlobalAddToCart(e, id, title, price, img, productType, downloadFiles);
+        }
+
+        function clearFilters() {
+            document.getElementById('ptype-all').checked = true;
+            onTypeChange();
+            document.getElementById('r-all').checked = true;
+            document.getElementById('min-price').value = '';
+            document.getElementById('max-price').value = '';
+            document.getElementById('sort-select').value = 'newest';
+            const searchInput = document.getElementById('shop-search-input');
+            if (searchInput) searchInput.value = '';
+            applyFilters();
+        }
+
+    </script>
+
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+</body>
+
+</html>

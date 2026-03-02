@@ -1,0 +1,185 @@
+﻿<header class="site-header">
+    <div class="header-inner">
+        <!-- Hamburger (visible < 992px) -->
+        <button id="hamburger" class="hamburger" aria-label="Open menu" aria-expanded="false"
+            aria-controls="mobile-sidebar">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Logo -->
+        <a href="/" class="logo">
+            <img src="/assets/images/logo.png" alt="Devanshik Logo" style="height: 36px; width: auto;">
+        </a>
+
+        <!-- Center Navigation (Desktop only) -->
+        <nav class="nav-links" aria-label="Main navigation">
+            <a href="/">Home</a>
+            <a href="/shop">Products</a>
+        </nav>
+
+        <!-- Right Side Actions -->
+        <div class="header-actions">
+
+            <!-- Search Icon -->
+            <button id="header-search-btn" class="cart-action" aria-label="Search"
+                style="border:none; cursor:pointer; background:transparent;">
+                <span class="icon icon-search" aria-hidden="true"></span>
+            </button>
+
+            <!-- Cart Icon (always visible) -->
+            <a href="/cart" class="cart-action" id="header-cart-btn" aria-label="Cart">
+                <span class="icon icon-cart" aria-hidden="true"></span>
+                <span class="cart-count hidden" aria-live="polite">0</span>
+            </a>
+
+            <!-- Login Icon (shown when logged out) -->
+            <button id="login-btn" class="profile-icon-btn" aria-label="Sign In">
+                <span class="icon icon-user" aria-hidden="true"></span>
+            </button>
+
+            <!-- Profile Avatar (shown when logged in) -->
+            <div class="profile hidden" id="profile-wrapper">
+                <button class="profile-toggle" id="profile-toggle" aria-label="Profile menu" aria-haspopup="true"
+                    aria-expanded="false">
+                    <span id="profile-initial">U</span>
+                </button>
+
+                <div class="profile-dropdown" id="profile-dropdown" role="menu">
+                    <div class="profile-info">
+                        <div id="menu-user-name"></div>
+                        <div id="menu-user-email"></div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="/dashboard/#profile" role="menuitem">
+                        <span class="icon icon-user icon-sm" aria-hidden="true"></span>
+                        My Profile
+                    </a>
+                    <a href="/dashboard/#orders" role="menuitem">
+                        <span class="icon icon-orders icon-sm" aria-hidden="true"></span>
+                        My Orders
+                    </a>
+                    <a href="/dashboard/#wishlist" role="menuitem">
+                        <span class="icon icon-wishlist icon-sm" aria-hidden="true"></span>
+                        Wishlist
+                    </a>
+                    <a href="/admin" id="admin-link" class="hidden" role="menuitem">
+                        <span class="icon icon-admin icon-sm" aria-hidden="true"></span>
+                        Admin Panel
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-btn" class="logout-btn" role="menuitem">
+                        <span class="icon icon-logout icon-sm" aria-hidden="true"></span>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</header>
+
+<!-- ═══ Mobile Sidebar ════════════════════════════════════ -->
+<div class="mobile-sidebar" id="mobile-sidebar" aria-hidden="true" role="dialog" aria-label="Navigation menu">
+
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+        <a href="/" class="logo sidebar-logo">
+            <img src="/assets/images/logo.png" alt="Devanshik Logo"
+                style="height: 32px; width: auto; filter: brightness(0) invert(1);">
+        </a>
+        <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">
+            <span class="icon icon-close" aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <!-- Sidebar Nav Links -->
+    <nav class="sidebar-nav" aria-label="Mobile navigation">
+        <a class="sidebar-link" href="/">
+            <span class="sidebar-link-icon">🏠</span>
+            Home
+        </a>
+        <a class="sidebar-link" href="/shop">
+            <span class="sidebar-link-icon">🛍️</span>
+            Products
+        </a>
+        <a class="sidebar-link" href="/cart">
+            <span class="sidebar-link-icon">🛒</span>
+            Cart
+            <span class="cart-count sidebar-cart-count hidden">0</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Account Section -->
+    <div class="sidebar-account">
+        <!-- Shown when logged out -->
+        <a href="/login" class="sidebar-link sidebar-signin" id="sidebar-login-link">
+            <span class="icon icon-user icon-sm" aria-hidden="true"></span>
+            Sign In / Create Account
+        </a>
+
+        <!-- Shown when logged in -->
+        <div id="sidebar-profile-section" class="hidden">
+            <!-- User info pill -->
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-avatar" id="sidebar-user-initial">U</div>
+                <div>
+                    <div class="sidebar-user-name" id="sidebar-user-name"></div>
+                    <div class="sidebar-user-email" id="sidebar-user-email"></div>
+                </div>
+            </div>
+
+            <a class="sidebar-link" href="/dashboard/#profile">
+                <span class="icon icon-user icon-sm" aria-hidden="true"></span>
+                My Profile
+            </a>
+            <a class="sidebar-link" href="/dashboard/#orders">
+                <span class="icon icon-orders icon-sm" aria-hidden="true"></span>
+                My Orders
+            </a>
+            <a class="sidebar-link" href="/dashboard/#wishlist">
+                <span class="icon icon-wishlist icon-sm" aria-hidden="true"></span>
+                Wishlist
+            </a>
+            <a class="sidebar-link hidden" href="/admin" id="sidebar-admin-link">
+                <span class="icon icon-admin icon-sm" aria-hidden="true"></span>
+                Admin Panel
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            <button class="sidebar-link sidebar-signout" id="sidebar-logout-btn">
+                <span class="icon icon-logout icon-sm" aria-hidden="true"></span>
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Dark overlay backdrop -->
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+<!-- ═══ Global Search Overlay ════════════════════════════════════ -->
+<div class="global-search-overlay" id="global-search-overlay" aria-hidden="true">
+    <div class="search-overlay-backdrop" id="search-overlay-backdrop"></div>
+    <div class="search-overlay-content">
+        <div class="search-overlay-header">
+            <div class="search-input-wrapper">
+                <span class="icon icon-search search-input-icon" aria-hidden="true"></span>
+                <input type="text" id="global-search-input" placeholder="Search products, categories..."
+                    autocomplete="off" aria-label="Search products">
+            </div>
+            <button class="search-close-btn" id="search-close-btn" aria-label="Close search">
+                <span class="icon icon-close" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="search-results-container" id="global-search-results">
+            <!-- Results injected here -->
+        </div>
+    </div>
+</div>

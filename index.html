@@ -1,0 +1,1306 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devanshik — Sacred Prints & Spiritual Essentials</title>
+    <meta name="description"
+        content="Order custom photo prints, sacred frames, spiritual albums, and divine accessories. Devanshik brings your sacred memories to life.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .hero {
+            width: 100%;
+            aspect-ratio: 1440 / 602;
+            /* 2.4:1 */
+            position: relative;
+            overflow: hidden;
+            background: #f8f8f8;
+        }
+
+        .hero-track {
+            display: flex;
+            height: 100%;
+            /* transition managed by JS */
+        }
+
+        .hero-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform-origin: center;
+        }
+
+
+
+        .hero-slide.inactive img {
+            transform: scale(1.05);
+            /* Slight upscale to animate out */
+        }
+
+        /* Arrows */
+        .hero-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, .4);
+            color: #fff;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background .3s;
+        }
+
+        .hero-arrow:hover {
+            background: rgba(0, 0, 0, .6);
+        }
+
+        .hero-arrow.left {
+            left: 16px;
+        }
+
+        .hero-arrow.right {
+            right: 16px;
+        }
+
+        /* Dots */
+        .hero-dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .5);
+            cursor: pointer;
+            transition: transform .3s, background .3s;
+        }
+
+        .hero-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+
+        /* Hide arrows on mobile */
+        @media (max-width: 768px) {
+            .hero-arrow {
+                display: none;
+            }
+
+            .hero {
+                aspect-ratio: auto !important;
+                height: auto;
+            }
+
+            .hero-track {
+                height: auto !important;
+            }
+
+            .hero-slide {
+                height: auto !important;
+            }
+
+            .hero-slide img {
+                width: 100%;
+                height: auto;
+                display: block;
+                object-fit: cover;
+            }
+
+            .hero-slide.inactive img {
+                transform: none;
+            }
+        }
+
+        .features-strip-wrapper {
+            margin-top: -10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .features-strip {
+            background: var(--color-surface);
+            padding: var(--space-6) var(--space-8);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            box-shadow: var(--shadow-lg);
+            border-top: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+            width: 100%;
+        }
+
+        @media (min-width: 769px) {
+            .feature-item.duplicate {
+                display: none;
+            }
+        }
+
+        /* Mobile UI Refinements */
+        @media (max-width: 768px) {
+            .features-strip-wrapper {
+                margin-top: 0;
+                padding: 0;
+                overflow: hidden;
+                position: relative;
+                z-index: 15;
+            }
+
+            .features-strip {
+                display: flex;
+                width: max-content;
+                animation: marquee 15s linear infinite;
+                gap: var(--space-6);
+                padding: var(--space-5) var(--space-6);
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .features-strip:hover {
+                animation-play-state: paused;
+            }
+        }
+
+        .feature-item {
+            min-width: 220px;
+            flex: 0 0 auto;
+            padding: 0 var(--space-4);
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .feature-icon {
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+
+        .feature-item h4 {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .feature-item p {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+        }
+
+        .cat-icon-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-border);
+            padding: var(--space-8) var(--space-5);
+            text-align: center;
+            transition: all var(--transition-base);
+            display: block;
+        }
+
+        .cat-icon-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+
+        .cat-icon-card h3 {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-2);
+        }
+
+        .cat-icon-card p {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+        }
+
+        .cat-icon-box {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background: var(--color-surface);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cat-icon-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-5);
+        }
+
+        @media (max-width: 768px) {
+            .testimonials {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .testimonial {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            border: 1px solid var(--color-border);
+        }
+
+        .stars {
+            color: #F59E0B;
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-3);
+        }
+
+        .testimonial p {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            font-style: italic;
+            line-height: 1.7;
+            margin-bottom: var(--space-4);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: var(--text-sm);
+            font-weight: 600;
+        }
+
+        .t-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: var(--text-sm);
+            flex-shrink: 0;
+        }
+
+        /* ── Flash Sale Banner ── */
+        .flash-banner {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            z-index: 990;
+            background: linear-gradient(90deg, #DC2626 0%, #B91C1C 40%, #7C3AED 100%);
+            color: #fff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 3px 12px rgba(220, 38, 38, 0.35);
+            animation: flashPulse 3s ease-in-out infinite;
+        }
+
+        body:has(.flash-banner:not(.hidden)) {
+            padding-top: calc(var(--header-height) + 48px);
+        }
+
+        @keyframes flashPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.92;
+            }
+        }
+
+        .flash-banner.hidden {
+            display: none !important;
+        }
+
+        .flash-banner-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .flash-icon {
+            font-size: 18px;
+            animation: flashBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes flashBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .flash-countdown {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
+
+        .flash-banner-cta {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .flash-banner-cta:hover {
+            background: rgba(255, 255, 255, 0.35);
+            color: #fff;
+        }
+
+        .flash-dismiss {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .flash-dismiss:hover {
+            color: #fff;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body>
+    <div id="page-loader" class="page-loader">
+        <div class=""></div>
+        <span class="brand"></span>
+    </div>
+
+    <!-- Dynamic Header -->
+    <div id="header-container"></div>
+
+    <!-- Announcement Bar (injected by JS when active discount/coupon exists) -->
+    <div id="announcement-bar" class="announcement-bar" style="display:none;" role="banner">
+        <div class="announcement-bar-inner">
+            <span>🎉</span>
+            <span id="anbar-text">Special offer active!</span>
+            <span id="anbar-code" class="anbar-code-pill" style="display:none;" title="Click to copy"
+                onclick="copyAnbarCode(this)"></span>
+            <span id="anbar-countdown" style="font-variant-numeric:tabular-nums; opacity:0.85;"></span>
+            <a href="/shop"
+                style="background:rgba(255,255,255,0.2); border-radius:20px; padding:2px 12px; font-size:12px; font-weight:700; color:#fff; text-decoration:none;">Shop
+                Now →</a>
+        </div>
+        <button class="anbar-dismiss" onclick="dismissAnnouncementBar()" aria-label="Dismiss announcement">×</button>
+    </div>
+
+    <main>
+        <!-- ═══ HERO ══════════════════════════════════════════════════ -->
+        <section class="hero" id="hero">
+            <!-- Skeleton shimmer -->
+            <div id="hero-skel"
+                style="position:absolute; inset:0; z-index:20; background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; transition: opacity 0.6s ease; pointer-events: none;">
+            </div>
+
+            <div class="hero-track" id="hero-track"></div>
+            <!-- Arrows -->
+            <button class="hero-arrow left" id="hero-prev" style="display:none;">‹</button>
+            <button class="hero-arrow right" id="hero-next" style="display:none;">›</button>
+            <!-- Dots -->
+            <div class="hero-dots" id="hero-dots"></div>
+        </section>
+
+        <!-- ═══ FEATURES STRIP ══════════════════════════════════════ -->
+        <div class="features-strip-wrapper">
+            <div class="features-strip">
+                <div class="feature-item">
+                    <span class="feature-icon">🖨️</span>
+                    <div>
+                        <h4>Premium Quality</h4>
+                        <p>Temple-grade paper & inks</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🚀</span>
+                    <div>
+                        <h4>Fast Delivery</h4>
+                        <p>3–5 business days</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <div>
+                        <h4>Secure Orders</h4>
+                        <p>Safe & encrypted checkout</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🙏</span>
+                    <div>
+                        <h4>Made With Love</h4>
+                        <p>Every order blessed & packed</p>
+                    </div>
+                </div>
+                <!-- Duplicated for infinite marquee on mobile -->
+                <div class="feature-item duplicate">
+                    <span class="feature-icon">🖨️</span>
+                    <div>
+                        <h4>Premium Quality</h4>
+                        <p>Temple-grade paper & inks</p>
+                    </div>
+                </div>
+                <div class="feature-item duplicate">
+                    <span class="feature-icon">🚀</span>
+                    <div>
+                        <h4>Fast Delivery</h4>
+                        <p>3–5 business days</p>
+                    </div>
+                </div>
+                <div class="feature-item duplicate">
+                    <span class="feature-icon">🔒</span>
+                    <div>
+                        <h4>Secure Orders</h4>
+                        <p>Safe & encrypted checkout</p>
+                    </div>
+                </div>
+                <div class="feature-item duplicate">
+                    <span class="feature-icon">🙏</span>
+                    <div>
+                        <h4>Made With Love</h4>
+                        <p>Every order blessed & packed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ CATEGORIES ═══════════════════════════════════════════ -->
+        <section class="section" id="categories-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Shop by Category</h2>
+                    <p>Explore our collection of sacred prints and spiritual essentials</p>
+                </div>
+                <div class="cat-grid" id="cat-grid">
+                    <!-- Static fallback (replaced by Firebase data if available) -->
+                    <a href="/shop?category=Sacred+Prints" class="cat-icon-card">
+                        <div class="cat-icon">🖼️</div>
+                        <h3>Sacred Prints</h3>
+                        <p>Deity photos, temple prints &amp; spiritual posters</p>
+                    </a>
+                    <a href="/shop?category=Frames" class="cat-icon-card">
+                        <div class="cat-icon">🪞</div>
+                        <h3>Photo Frames</h3>
+                        <p>Ornate &amp; wooden frames for your sacred images</p>
+                    </a>
+                    <a href="/shop?category=Albums" class="cat-icon-card">
+                        <div class="cat-icon">📖</div>
+                        <h3>Memory Albums</h3>
+                        <p>Preserve pilgrimages, puja &amp; family memories</p>
+                    </a>
+                    <a href="/shop?category=Accessories" class="cat-icon-card">
+                        <div class="cat-icon">📿</div>
+                        <h3>Accessories</h3>
+                        <p>Keychains, fridge magnets, canvas prints &amp; gifts</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ FLASH SALE HERO ════════════════════════════════════ -->
+        <section id="flash-sale-section" class="flash-sale-section" style="display:none;">
+            <div class="container">
+                <div class="flash-sale-inner">
+                    <div>
+                        <div class="flash-sale-label">⚡ Limited Time</div>
+                        <h2 class="flash-sale-title" id="flash-hero-title">FLASH SALE — Up to <span
+                                id="flash-hero-pct">40%</span> OFF</h2>
+                        <p class="flash-sale-sub" id="flash-hero-sub">Grab your favourites before the sale ends!</p>
+                        <a href="/shop" class="btn btn-primary btn-lg">Shop Now →</a>
+                    </div>
+                    <div class="flash-sale-timer-wrap">
+                        <div class="flash-timer-label">Sale ends in</div>
+                        <div class="flash-timer-digits">
+                            <div class="flash-timer-unit">
+                                <div class="flash-timer-num" id="fh-hours">00</div>
+                                <div class="flash-timer-unit-label">Hours</div>
+                            </div>
+                            <div class="flash-timer-sep">:</div>
+                            <div class="flash-timer-unit">
+                                <div class="flash-timer-num" id="fh-mins">00</div>
+                                <div class="flash-timer-unit-label">Mins</div>
+                            </div>
+                            <div class="flash-timer-sep">:</div>
+                            <div class="flash-timer-unit">
+                                <div class="flash-timer-num" id="fh-secs">00</div>
+                                <div class="flash-timer-unit-label">Secs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ FEATURED PRODUCTS ════════════════════════════════════ -->
+        <section class="section section-alt" id="featured-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="feat-section-title">Featured Products</h2>
+                    <p id="feat-section-sub">Handpicked divine essentials, beloved by devotees</p>
+                </div>
+                <div class="product-grid" id="featured-products">
+                    <!-- Skeleton placeholders -->
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                    <div class="sk-card"
+                        style="height:320px; border-radius:16px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear;">
+                    </div>
+                </div>
+                <div style="text-align:center; margin-top:var(--space-10);">
+                    <a href="/shop" class="btn btn-outline btn-lg">View All Products</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ STORY SECTION (dynamic, hidden by default) ══════════ -->
+        <section class="section" id="story-section" style="display:none;">
+            <div class="container">
+                <div id="story-inner"></div>
+            </div>
+        </section>
+
+        <!-- ═══ TESTIMONIALS ══════════════════════════════════════════ -->
+        <section class="section" id="testimonials-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>What Devotees Say</h2>
+                    <p>Real stories from our customers</p>
+                </div>
+                <div class="testimonials" id="testimonials-grid">
+                    <!-- Static fallback -->
+                    <div class="testimonial">
+                        <div class="stars">★★★★★</div>
+                        <p>"Ordered a large print of Lord Ganesha. The colours and paper quality are outstanding —
+                            exactly what I needed for our puja room."</p>
+                        <div class="testimonial-author">
+                            <div class="t-avatar">R</div>
+                            <div>
+                                <div>Rajeshwari M.</div>
+                                <div style="font-weight:400;color:var(--color-text-muted);font-size:var(--text-xs);">
+                                    Chennai</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="stars">★★★★★</div>
+                        <p>"Gifted our parents an album of pilgrimage photos from Varanasi. The pages are thick and the
+                            binding is premium. They were overjoyed!"</p>
+                        <div class="testimonial-author">
+                            <div class="t-avatar">A</div>
+                            <div>
+                                <div>Arjun K.</div>
+                                <div style="font-weight:400;color:var(--color-text-muted);font-size:var(--text-xs);">
+                                    Bengaluru</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="stars">★★★★☆</div>
+                        <p>"Fast delivery, beautiful packaging and the frame quality is superb. Will definitely order
+                            again for Diwali gifts."</p>
+                        <div class="testimonial-author">
+                            <div class="t-avatar">P</div>
+                            <div>
+                                <div>Priya S.</div>
+                                <div style="font-weight:400;color:var(--color-text-muted);font-size:var(--text-xs);">
+                                    Pune</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ CTA BANNER ════════════════════════════════════════════ -->
+        <section class="section" id="cta-section"
+            style="background:linear-gradient(135deg,#2C1A0E,#8B2252);color:#fff;">
+            <div class="container" id="cta-container" style="text-align:center;">
+                <h2 id="cta-title" style="color:#fff;font-size:var(--text-3xl);margin-bottom:var(--space-4);">Ready to
+                    create something divine?</h2>
+                <p id="cta-subtitle"
+                    style="color:rgba(255,255,255,.75);font-size:var(--text-lg);margin-bottom:var(--space-8);">Upload
+                    your sacred photos and we'll transform them into premium prints delivered to your door.</p>
+                <a href="/shop" class="btn btn-primary btn-lg" id="cta-btn">Start Your Order 🪔</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+
+    <div id="toast-container"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/cache.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/discounts.js"></script>
+    <script src="js/load-components.js"></script>
+    <script>
+        document.addEventListener('componentsLoaded', async () => {
+            document.getElementById('page-loader').classList.add('hidden');
+            // Load landing page data + site theme in parallel
+            const [lp, theme] = await Promise.all([
+                getLandingPage().catch(() => ({})),
+                getSiteTheme().catch(() => ({}))
+            ]);
+            applyFestivalTheme(theme);
+            await Promise.all([
+                loadFeaturedProducts(lp.featured),
+                loadLandingCategories(lp.categories),
+                loadStorySection(lp.story),
+                loadTestimonials(lp.testimonials),
+                loadCTASection(lp.cta)
+            ]);
+            // Load and display flash sale banner
+            try {
+                const discounts = await getActiveDiscounts();
+                const flash = getActiveFlashSale(discounts);
+                if (flash) showFlashBanner(flash);
+            } catch { /* non-critical */ }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderHeroInstant();
+            refreshHeroInBackground();
+        });
+
+        // ─── Festival Theme ───────────────────────────────────────
+        function applyFestivalTheme(theme) {
+            if (!theme || !theme.activeTheme || theme.activeTheme === 'none') return;
+            const t = theme.themes?.[theme.activeTheme];
+            if (!t) return;
+            if (t.primaryColor) document.documentElement.style.setProperty('--color-primary', t.primaryColor);
+            if (t.accentColor) document.documentElement.style.setProperty('--color-accent', t.accentColor);
+        }
+
+        // ─── Announcement Bar ─────────────────────────────────────
+        const ANBAR_DISMISS_KEY = 'dv_anbar_dismissed';
+
+        function showFlashBanner(flash) {
+            // Only show if not dismissed in this session
+            if (sessionStorage.getItem(ANBAR_DISMISS_KEY)) return;
+
+            const bar = document.getElementById('announcement-bar');
+            if (!bar) return;
+
+            const msg = flash.bannerMessage || flash.label || flash.name || '⚡ Flash Sale';
+            const code = flash.couponCode || '';
+
+            document.getElementById('anbar-text').textContent = msg;
+
+            const codePill = document.getElementById('anbar-code');
+            if (code) {
+                codePill.textContent = code;
+                codePill.style.display = 'inline-block';
+                codePill.title = 'Click to copy: ' + code;
+            }
+
+            bar.style.display = 'flex';
+            document.body.classList.add('has-anbar');
+
+            // Measure real bar height and set CSS variable (handles wrapping on mobile)
+            function syncAnbarHeight() {
+                const h = bar.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--anbar-h', h + 'px');
+            }
+            // Use rAF so the browser has rendered the bar before measuring
+            requestAnimationFrame(() => {
+                requestAnimationFrame(syncAnbarHeight);
+            });
+            // Re-measure on resize (orientation change / font scaling)
+            window._anbarResizeHandler = syncAnbarHeight;
+            window.addEventListener('resize', window._anbarResizeHandler);
+
+            // Countdown in bar
+            if (flash.endDate) {
+                const cdEl = document.getElementById('anbar-countdown');
+                function tickBar() {
+                    const diff = Math.max(0, flash.endDate - Date.now());
+                    if (diff === 0) { cdEl.textContent = ''; clearInterval(anBarInterval); return; }
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    cdEl.textContent = `⏱ ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                }
+                tickBar();
+                const anBarInterval = setInterval(tickBar, 1000);
+            }
+
+            // ─── Flash Sale Hero Section ──────────────────────────
+            showFlashSaleHero(flash);
+        }
+
+        function dismissAnnouncementBar() {
+            const bar = document.getElementById('announcement-bar');
+            if (bar) bar.style.display = 'none';
+            document.body.classList.remove('has-anbar');
+            document.documentElement.style.removeProperty('--anbar-h');
+            if (window._anbarResizeHandler) {
+                window.removeEventListener('resize', window._anbarResizeHandler);
+                window._anbarResizeHandler = null;
+            }
+            sessionStorage.setItem(ANBAR_DISMISS_KEY, '1');
+        }
+
+        function copyAnbarCode(el) {
+            const code = el.textContent;
+            navigator.clipboard.writeText(code).catch(() => { });
+            const orig = el.textContent;
+            el.textContent = '✓ Copied!';
+            setTimeout(() => { el.textContent = orig; }, 1500);
+        }
+
+        // ─── Flash Sale Hero Section ──────────────────────────────
+        let flashHeroInterval = null;
+        function showFlashSaleHero(flash) {
+            const section = document.getElementById('flash-sale-section');
+            if (!section) return;
+
+            // Set title
+            const titleEl = document.getElementById('flash-hero-title');
+            if (flash.bannerMessage || flash.name) {
+                titleEl.innerHTML = (flash.bannerMessage || flash.name);
+            }
+
+            // Set sub
+            const subEl = document.getElementById('flash-hero-sub');
+            if (flash.description) subEl.textContent = flash.description;
+
+            section.style.display = 'block';
+
+            if (!flash.endDate) return;
+
+            function tickHero() {
+                const diff = Math.max(0, flash.endDate - Date.now());
+                if (diff === 0) {
+                    section.style.display = 'none';
+                    clearInterval(flashHeroInterval);
+                    return;
+                }
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('fh-hours').textContent = String(h).padStart(2, '0');
+                document.getElementById('fh-mins').textContent = String(m).padStart(2, '0');
+                document.getElementById('fh-secs').textContent = String(s).padStart(2, '0');
+
+                // Urgency glow when < 1 hour
+                const wrap = document.querySelector('.flash-sale-timer-wrap');
+                if (wrap) wrap.style.borderColor = diff < 3600000 ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.2)';
+            }
+            tickHero();
+            flashHeroInterval = setInterval(tickHero, 1000);
+        }
+
+        // ─── Hero Banners ─────────────────────────────────────────
+        let slides = [];
+        let actualIndex = 1; // 1-based internal index due to clone at 0
+        let autoSlideTimer;
+        let isAnimating = false;
+
+        function renderHeroInstant() {
+            const local = localStorage.getItem("hero_cache");
+
+            if (local) {
+                const parsed = JSON.parse(local);
+                slides = parsed.data || [];
+
+                if (slides[0]?.imageUrl) {
+                    const link = document.createElement("link");
+                    link.rel = "preload";
+                    link.as = "image";
+                    link.href = slides[0].imageUrl;
+                    document.head.appendChild(link);
+                }
+
+                renderSlides();
+                hideSkeleton();
+                return;
+            }
+
+            // If no cache → render fallback static banner
+            slides = [{
+                imageUrl: "/assets/images/fallback-hero.webp",
+                link: "/shop"
+            }];
+
+            if (slides[0]?.imageUrl) {
+                const link = document.createElement("link");
+                link.rel = "preload";
+                link.as = "image";
+                link.href = slides[0].imageUrl;
+                document.head.appendChild(link);
+            }
+
+            renderSlides();
+            hideSkeleton();
+        }
+
+        async function refreshHeroInBackground() {
+            try {
+                if (typeof firebase === 'undefined') return;
+
+                const snap = await firebase.database()
+                    .ref("landingPage/hero")
+                    .once("value");
+
+                const hero = snap.val() || {};
+                const data = hero.banners || {};
+                const version = hero.lastUpdated || Date.now();
+
+                const fresh = Object.values(data)
+                    .filter(b => b.enabled)
+                    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                const local = JSON.parse(localStorage.getItem("hero_cache") || "{}");
+
+                if (!local.version || local.version !== version) {
+                    localStorage.setItem("hero_cache", JSON.stringify({
+                        version,
+                        data: fresh
+                    }));
+
+                    slides = fresh;
+                    renderSlides(); // Update silently
+                }
+
+                const section = document.getElementById('hero');
+                if (hero.enabled === false) {
+                    section.style.display = 'none';
+                } else if (slides.length > 0) {
+                    section.style.display = '';
+                }
+
+            } catch (e) {
+                console.log("Hero background refresh failed", e);
+            }
+        }
+
+        function hideSkeleton() {
+            const skel = document.getElementById("hero-skel");
+            if (skel) {
+                skel.style.opacity = '0';
+                setTimeout(() => skel.remove(), 600);
+            }
+        }
+
+        function createSlideHTML(slide) {
+            return `
+                <div class="hero-slide">
+                    <a href="${slide.link || '#'}">
+                        <img src="${slide.imageUrl}"
+                             alt="${slide.altText || ''}"
+                             loading="eager"
+                             fetchpriority="high"
+                             decoding="async">
+                    </a>
+                </div>
+            `;
+        }
+
+        function renderSlides() {
+            const track = document.getElementById("hero-track");
+            const dots = document.getElementById("hero-dots");
+
+            if (slides.length === 0) return;
+
+            if (slides.length === 1) {
+                track.innerHTML = createSlideHTML(slides[0]);
+                dots.innerHTML = '';
+                document.getElementById("hero-prev").style.display = 'none';
+                document.getElementById("hero-next").style.display = 'none';
+                actualIndex = 0;
+                updateSlidePosition(false);
+                return;
+            }
+
+            let html = '';
+            // Clone Last Slide
+            html += createSlideHTML(slides[slides.length - 1]);
+            // Real Slides
+            html += slides.map(s => createSlideHTML(s)).join('');
+            // Clone First Slide
+            html += createSlideHTML(slides[0]);
+
+            track.innerHTML = html;
+
+            dots.innerHTML = slides.map((_, i) =>
+                `<div class="hero-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`
+            ).join('');
+
+            document.getElementById("hero-prev").style.display = '';
+            document.getElementById("hero-next").style.display = '';
+
+            actualIndex = 1;
+            updateSlidePosition(false);
+
+            bindDotClicks();
+            setupArrowClicks();
+            setupSwipe();
+            setupHover();
+            startAutoSlide();
+
+            // Handle infinite loop jumping seamlessly
+            track.addEventListener('transitionend', (e) => {
+                if (e.target !== track) return;
+                isAnimating = false;
+
+                if (actualIndex === 0) {
+                    actualIndex = slides.length;
+                    updateSlidePosition(false);
+                } else if (actualIndex === slides.length + 1) {
+                    actualIndex = 1;
+                    updateSlidePosition(false);
+                }
+            });
+        }
+
+        function bindDotClicks() {
+            document.querySelectorAll(".hero-dot").forEach(dot => {
+                dot.addEventListener("click", () => {
+                    if (isAnimating) return;
+                    actualIndex = parseInt(dot.dataset.index) + 1;
+                    updateSlidePosition(true);
+                    resetAutoSlide();
+                });
+            });
+        }
+
+        function setupArrowClicks() {
+            const prev = document.getElementById("hero-prev");
+            const next = document.getElementById("hero-next");
+
+            prev.onclick = () => {
+                if (isAnimating) return;
+                actualIndex--;
+                updateSlidePosition(true);
+                resetAutoSlide();
+            };
+            next.onclick = () => {
+                if (isAnimating) return;
+                actualIndex++;
+                updateSlidePosition(true);
+                resetAutoSlide();
+            };
+        }
+
+        function updateSlidePosition(animate = true) {
+            const track = document.getElementById("hero-track");
+            const allSlides = document.querySelectorAll(".hero-slide");
+            const transTime = '0.8s';
+            const transEase = 'cubic-bezier(.22,.61,.36,1)';
+
+            if (animate) {
+                isAnimating = true;
+                track.style.transition = `transform ${transTime} ${transEase}`;
+                allSlides.forEach(s => {
+                    s.style.transition = `opacity ${transTime} ${transEase}`;
+                    const img = s.querySelector('img');
+                    if (img) img.style.transition = `transform ${transTime} ${transEase}`;
+                });
+            } else {
+                track.style.transition = 'none';
+                allSlides.forEach(s => {
+                    s.style.transition = 'none';
+                    const img = s.querySelector('img');
+                    if (img) img.style.transition = 'none';
+                });
+                // Force reflow immediately to ensure JS instant swap
+                void track.offsetWidth;
+            }
+
+            track.style.transform = `translateX(-${actualIndex * 100}%)`;
+
+            // Fade/Zoom transition states
+            allSlides.forEach((s, i) => {
+                if (i === actualIndex) {
+                    s.classList.remove('inactive');
+                } else {
+                    s.classList.add('inactive');
+                }
+            });
+
+            // Dot states mapping
+            if (slides.length > 1) {
+                let dotIndex = actualIndex - 1;
+                if (actualIndex === 0) dotIndex = slides.length - 1;
+                if (actualIndex === slides.length + 1) dotIndex = 0;
+
+                document.querySelectorAll(".hero-dot").forEach((dot, i) => {
+                    dot.classList.toggle("active", i === dotIndex);
+                });
+            }
+        }
+
+        function startAutoSlide() {
+            if (slides.length <= 1) return;
+            autoSlideTimer = setInterval(() => {
+                if (!isAnimating) {
+                    actualIndex++;
+                    updateSlidePosition(true);
+                }
+            }, 5500);
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideTimer);
+            startAutoSlide();
+        }
+
+        function setupHover() {
+            const heroEl = document.getElementById("hero");
+            heroEl.addEventListener("mouseenter", () => clearInterval(autoSlideTimer));
+            heroEl.addEventListener("mouseleave", () => startAutoSlide());
+        }
+
+        function setupSwipe() {
+            let startX = 0;
+            const heroEl = document.getElementById("hero");
+
+            heroEl.addEventListener("touchstart", e => {
+                if (isAnimating) return;
+                startX = e.touches[0].clientX;
+            }, { passive: true });
+
+            heroEl.addEventListener("touchend", e => {
+                if (isAnimating) return;
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        actualIndex++;
+                    } else {
+                        actualIndex--;
+                    }
+                    updateSlidePosition(true);
+                    resetAutoSlide();
+                }
+            });
+        }
+
+        // ─── Categories ───────────────────────────────────────────
+        async function loadLandingCategories(cats) {
+            if (!cats || cats.enabled === false) return;
+            if (!cats.items) return;
+            const list = Object.values(cats.items).filter(c => c && c.enabled !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+            if (!list.length) return;
+            const grid = document.getElementById('cat-grid');
+            grid.innerHTML = list.map(c => `
+              <a href="/shop?category=${encodeURIComponent(c.slug || c.name)}" class="cat-icon-card">
+                <div class="cat-icon-box">
+                   ${c.imageUrl ? `<img src="${c.imageUrl}" alt="${c.name}">` : '🖼️'}
+                </div>
+                <h3>${c.name}</h3>
+                <p>${c.subtitle || ''}</p>
+              </a>`).join('');
+        }
+
+        // ─── Featured Products ────────────────────────────────────
+        async function loadFeaturedProducts(featured) {
+            const grid = document.getElementById('featured-products');
+            try {
+                if (featured && featured.enabled !== false) {
+                    if (featured.title) document.getElementById('feat-section-title').textContent = featured.title;
+                    if (featured.subtitle) document.getElementById('feat-section-sub').textContent = featured.subtitle;
+                    if (featured.productIds && featured.productIds.length) {
+                        const ids = featured.productIds.filter(Boolean);
+                        const prods = (await Promise.all(ids.map(id => getProduct(id).catch(() => null)))).filter(Boolean);
+                        if (prods.length) { grid.innerHTML = prods.map(p => renderProductCard(p)).join(''); return; }
+                    }
+                }
+                // Fallback: load newest 8
+                const products = await getProducts({ sort: 'newest', limit: 8 });
+                if (!products.length) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🪔</div><h3>Products coming soon</h3><p>Check back shortly.</p></div>`; return; }
+                grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+            } catch { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">⚠️</div><h3>Could not load products</h3><p>Please check your Firebase configuration.</p></div>`; }
+        }
+
+        // ─── Story Section ────────────────────────────────────────
+        async function loadStorySection(story) {
+            if (!story || !story.enabled) return;
+            const sec = document.getElementById('story-section');
+            const inner = document.getElementById('story-inner');
+            const imgPos = story.imagePosition === 'right';
+            inner.innerHTML = `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-10);align-items:center;border-radius:var(--radius-2xl);padding:var(--space-10);">
+                ${!imgPos && story.imageUrl ? `<img src="${story.imageUrl}" alt="Story" style="width:100%;border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);">` : ''}
+                <div>
+                  <h2 style="margin-bottom:var(--space-3);">${story.title || ''}</h2>
+                  ${story.subtitle ? `<p style="color:var(--color-primary);font-weight:600;margin-bottom:var(--space-4);">${story.subtitle}</p>` : ''}
+                  <p style="color:var(--color-text-muted);line-height:1.8;margin-bottom:var(--space-6);">${(story.content || '').replace(/\n/g, '<br>')}</p>
+                  ${story.buttonText ? `<a href="${story.buttonLink || '#'}" class="btn btn-primary">${story.buttonText}</a>` : ''}
+                </div>
+                ${imgPos && story.imageUrl ? `<img src="${story.imageUrl}" alt="Story" style="width:100%;border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);">` : ''}
+              </div>`;
+            sec.style.display = '';
+        }
+
+        // ─── Testimonials ─────────────────────────────────────────
+        async function loadTestimonials(testis) {
+            if (!testis || testis.enabled === false) {
+                if (testis && testis.enabled === false) document.getElementById('testimonials-section').style.display = 'none';
+                return;
+            }
+            if (!testis.items) return;
+            const list = Object.values(testis.items).filter(t => t && t.enabled !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+            if (!list.length) return;
+            const grid = document.getElementById('testimonials-grid');
+            grid.innerHTML = list.map(t => `
+              <div class="testimonial">
+                <div class="stars">${'★'.repeat(t.rating || 5)}${'☆'.repeat(5 - (t.rating || 5))}</div>
+                <p>"${t.message || ''}"</p>
+                <div class="testimonial-author">
+                  ${t.avatarUrl ? `<img src="${t.avatarUrl}" class="t-avatar" style="object-fit:cover;">` : `<div class="t-avatar">${(t.name || '?').charAt(0).toUpperCase()}</div>`}
+                  <div><div>${t.name || ''}</div><div style="font-weight:400;color:var(--color-text-muted);font-size:var(--text-xs);">${t.city || ''}</div></div>
+                </div>
+              </div>`).join('');
+        }
+
+        // ─── CTA Section ──────────────────────────────────────────
+        async function loadCTASection(cta) {
+            if (!cta || cta.enabled === false) { document.getElementById('cta-section').style.display = 'none'; return; }
+            const sec = document.getElementById('cta-section');
+            const cont = document.getElementById('cta-container');
+
+            // Background Logic (V3)
+            const type = cta.backgroundType || 'color';
+            if (type === 'image' && cta.backgroundImage) {
+                // Apply a subtle overlay for text readability
+                sec.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(44,26,14,0.7)), url(${cta.backgroundImage}) center/cover no-repeat`;
+            } else if (type === 'gradient') {
+                const gradType = cta.gradientType || 'linear';
+                const c1 = cta.color1 || '#2C1A0E';
+                const c2 = cta.color2 || '#8B2252';
+                const rawDir = cta.direction || cta.gradientDir || '135deg';
+                const direction = String(rawDir).includes('deg') ? rawDir : `${rawDir}deg`;
+
+                if (gradType === 'linear') {
+                    sec.style.background = `linear-gradient(${direction}, ${c1}, ${c2})`;
+                } else {
+                    sec.style.background = `radial-gradient(circle, ${c1}, ${c2})`;
+                }
+            } else {
+                sec.style.background = cta.backgroundColor || '#2C1A0E';
+            }
+
+            if (cta.textAlign) cont.style.textAlign = cta.textAlign;
+            if (cta.title) document.getElementById('cta-title').textContent = cta.title;
+            if (cta.subtitle) document.getElementById('cta-subtitle').textContent = cta.subtitle;
+
+            const btnEl = document.getElementById('cta-btn');
+            if (cta.buttonText) btnEl.textContent = cta.buttonText;
+            if (cta.buttonLink) btnEl.href = cta.buttonLink;
+
+            sec.style.display = '';
+        }
+
+        function quickAdd(e, id, title, price, img, productType, downloadFiles) {
+            handleGlobalAddToCart(e, id, title, price, img, productType, downloadFiles);
+        }
+    </script>
+</body>
+
+</html>

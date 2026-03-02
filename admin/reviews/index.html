@@ -1,0 +1,1578 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Moderation — Admin — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <style>
+        /* ═══════════════════════════════════════
+           MODERATION WORKSPACE — DESIGN SYSTEM
+        ═══════════════════════════════════════ */
+
+        .admin-content {
+            background: #f5f0ea;
+            min-height: calc(100vh - 64px);
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .05);
+            border: none;
+        }
+
+        /* ── Rating Heat Filter ── */
+        .workspace-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .workspace-header .form-input {
+            background: #fff;
+            border: 1px solid #e8ddd1;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .rating-heat-filter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 8px 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .04);
+            flex-wrap: wrap;
+        }
+
+        .rating-heat-filter .heat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #9c7c5a;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-right: 4px;
+        }
+
+        .heat-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            background: #f5f0ea;
+            color: #7a6653;
+            transition: all .18s ease;
+        }
+
+        .heat-btn:hover {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .heat-btn.active {
+            background: #fff7ed;
+            border-color: #fbbf24;
+            color: #92400e;
+        }
+
+        /* ── Main Workspace Split ── */
+        .reviews-workspace {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+            height: calc(100vh - 245px);
+            min-height: 500px;
+        }
+
+        /* ── Left Feed Panel ── */
+        .reviews-feed {
+            background: #fff;
+            border-radius: 20px;
+            overflow-y: auto;
+            padding: 10px 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .05);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .reviews-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .reviews-feed::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .reviews-feed::-webkit-scrollbar-thumb {
+            background: #e8ddd1;
+            border-radius: 4px;
+        }
+
+        .feed-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #b09880;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px 4px;
+        }
+
+        /* ── Review Preview Card ── */
+        .review-preview {
+            padding: 12px 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all .18s ease;
+            border: 1.5px solid transparent;
+            position: relative;
+        }
+
+        .review-preview:hover {
+            background: #faf7f4;
+        }
+
+        .review-preview.active {
+            background: #fff7ed;
+            border-color: #fbbf24;
+        }
+
+        .review-preview.hidden-review {
+            opacity: .55;
+        }
+
+        .review-preview-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        .review-preview-author {
+            font-weight: 600;
+            font-size: 13px;
+            color: #3a2a1a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .preview-stars {
+            color: #fbbf24;
+            font-size: 11px;
+            flex-shrink: 0;
+            letter-spacing: .5px;
+        }
+
+        .review-preview-product {
+            font-size: 11px;
+            color: #9c7c5a;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 5px;
+        }
+
+        .review-preview-comment {
+            font-size: 12px;
+            color: #7a6653;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .preview-badges {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .preview-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            letter-spacing: .3px;
+        }
+
+        .badge-hidden {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-flagged {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-verified {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-photos {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .badge-replied {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        .feed-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #b09880;
+            padding: 40px 20px;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .feed-empty .empty-icon {
+            font-size: 2.4rem;
+        }
+
+        .feed-empty p {
+            font-size: 13px;
+        }
+
+        /* ── Right Inspector Panel ── */
+        .review-inspector {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 32px;
+            overflow-y: auto;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .review-inspector::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .review-inspector::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .review-inspector::-webkit-scrollbar-thumb {
+            background: #e8ddd1;
+            border-radius: 4px;
+        }
+
+        .inspector-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #b09880;
+            gap: 14px;
+            text-align: center;
+        }
+
+        .inspector-empty .empty-icon {
+            font-size: 3rem;
+        }
+
+        .inspector-empty h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #7a6653;
+            margin: 0;
+        }
+
+        .inspector-empty p {
+            font-size: 13px;
+            color: #b09880;
+            max-width: 260px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .kbd-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #9c7c5a;
+            background: #f5f0ea;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .kbd {
+            display: inline-block;
+            background: #fff;
+            border: 1px solid #d4c4b0;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: monospace;
+            color: #7a6653;
+            box-shadow: 0 1px 0 #c4b4a0;
+        }
+
+        /* ── Inspector Header ── */
+        .inspector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .inspector-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3a2a1a;
+            margin: 0;
+        }
+
+        .inspector-toolbar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .18s ease;
+        }
+
+        .tool-btn:hover {
+            filter: brightness(.95);
+            transform: translateY(-1px);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        .tool-btn-reply {
+            background: #fdfaf6;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+
+        .tool-btn-edit {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .tool-btn-show {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tool-btn-hide {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tool-btn-delete {
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+        }
+
+        /* ── Inspector Content ── */
+        .inspector-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .inspector-stars {
+            color: #fbbf24;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .inspector-author {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3a2a1a;
+        }
+
+        .inspector-date {
+            font-size: 12px;
+            color: #9c7c5a;
+        }
+
+        .inspector-product-link {
+            font-size: 12px;
+            color: var(--color-primary);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 3px 8px;
+            background: #fdfaf6;
+            border-radius: 8px;
+            border: 1px solid var(--color-primary);
+        }
+
+        .inspector-product-link:hover {
+            opacity: .8;
+        }
+
+        .inspector-comment {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #3a2a1a;
+            background: #fdfaf6;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .inspector-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .istat {
+            flex: 1;
+            min-width: 90px;
+            background: #f5f0ea;
+            border-radius: 12px;
+            padding: 10px 14px;
+            text-align: center;
+        }
+
+        .istat-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3a2a1a;
+        }
+
+        .istat-label {
+            font-size: 10px;
+            color: #9c7c5a;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .istat.danger .istat-val {
+            color: #dc2626;
+        }
+
+        .inspector-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .inspector-images img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform .18s ease, opacity .18s ease;
+            border: 2px solid transparent;
+        }
+
+        .inspector-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .inspector-images img.img-hidden {
+            opacity: .3;
+            filter: grayscale(1);
+            border-color: #fca5a5;
+        }
+
+        .inspector-reply-box {
+            background: #fdfaf6;
+            border-left: 3px solid var(--color-primary);
+            border-radius: 0 12px 12px 0;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .inspector-reply-box strong {
+            display: block;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .status-strip {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-strip.hidden-strip {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-strip.flagged-strip {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* ── Premium Lightbox ── */
+        .review-lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn .3s ease;
+        }
+
+        .review-lightbox.open {
+            display: flex;
+        }
+
+        .review-lightbox-inner {
+            background: #fff;
+            width: 100%;
+            max-width: 1100px;
+            height: 85vh;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .5);
+            animation: slideUp .4s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .review-lightbox-content {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            height: 100%;
+        }
+
+        .lightbox-image-section {
+            background: #111;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .lightbox-image-section img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform .3s ease;
+        }
+
+        .lightbox-review-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            overflow-y: auto;
+            border-left: 1px solid var(--color-border);
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, .2);
+            border: none;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, .4);
+        }
+
+        .nav-arrow.left {
+            left: 20px;
+        }
+
+        .nav-arrow.right {
+            right: 20px;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .lightbox-thumbs {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 20px;
+        }
+
+        .lightbox-thumbs img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: .6;
+            transition: all .2s;
+            background: #fff;
+        }
+
+        .lightbox-thumbs img.active {
+            border-color: var(--color-primary);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, .9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+        }
+
+        /* ── Modals ── */
+        .review-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 3000;
+        }
+
+        .review-modal-overlay.open {
+            display: flex;
+        }
+
+        .review-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            position: relative;
+        }
+
+        .review-modal h3 {
+            margin-bottom: 20px;
+            font-family: var(--font-heading);
+            color: #3a2a1a;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1100px) {
+            .reviews-workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .reviews-feed {
+                max-height: 420px;
+            }
+
+            .review-inspector {
+                min-height: 500px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .review-lightbox-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+                height: 95vh;
+            }
+
+            .lightbox-image-section {
+                height: 45vh;
+            }
+
+            .lightbox-review-section {
+                padding: 24px;
+            }
+
+            .lightbox-thumbs {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body class="admin-body">
+
+    <!-- ═══ SIDEBAR ═══════════════════════════════════════════════════ -->
+    <div id="admin-sidebar-container"></div>
+
+    <!-- ═══ MAIN ══════════════════════════════════════════════════════ -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Review Moderation</span>
+            </div>
+            <div class="topbar-actions">
+                <a href="/shop" class="btn btn-outline btn-sm" target="_blank">View Store →</a>
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div>
+                    <span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- Summary Stats -->
+            <div class="stat-grid"
+                style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: var(--space-5);">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#FEF3C7; color:#92400E;">⭐</div>
+                    <div class="stat-info">
+                        <h3 id="stat-total-reviews">—</h3>
+                        <p>Total Reviews</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#D1FAE5; color:#065F46;">📦</div>
+                    <div class="stat-info">
+                        <h3 id="stat-products-with-reviews">—</h3>
+                        <p>Products Reviewed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#EEF2FF; color:#4F46E5;">📊</div>
+                    <div class="stat-info">
+                        <h3 id="stat-avg-rating">—</h3>
+                        <p>Avg Rating</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Header: Search + Rating Heat Filter -->
+            <div class="workspace-header">
+                <input type="text" id="search-product" class="form-input" placeholder="🔍 Search product or reviewer..."
+                    style="max-width:280px;" oninput="applyFilter()">
+
+                <div class="rating-heat-filter">
+                    <span class="heat-label">Rating</span>
+                    <button class="heat-btn active" data-rating="" onclick="setHeatFilter(this, '')">All</button>
+                    <button class="heat-btn" data-rating="5" onclick="setHeatFilter(this, '5')">★ 5 <span
+                            id="heat-count-5" style="opacity:.6;"></span></button>
+                    <button class="heat-btn" data-rating="4" onclick="setHeatFilter(this, '4')">★ 4 <span
+                            id="heat-count-4" style="opacity:.6;"></span></button>
+                    <button class="heat-btn" data-rating="3" onclick="setHeatFilter(this, '3')">★ 3 <span
+                            id="heat-count-3" style="opacity:.6;"></span></button>
+                    <button class="heat-btn" data-rating="2" onclick="setHeatFilter(this, '2')">★ 2 <span
+                            id="heat-count-2" style="opacity:.6;"></span></button>
+                    <button class="heat-btn" data-rating="1" onclick="setHeatFilter(this, '1')">★ 1 <span
+                            id="heat-count-1" style="opacity:.6;"></span></button>
+                </div>
+
+                <span id="reviews-count-label" style="font-size:12px; color:#9c7c5a; margin-left:auto;"></span>
+            </div>
+
+            <!-- Loading State -->
+            <div id="reviews-loading" style="text-align:center; padding:var(--space-12);">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Moderation Workspace -->
+            <div id="reviews-workspace-wrap" class="hidden">
+                <div class="reviews-workspace">
+                    <!-- Left: Review Feed -->
+                    <div class="reviews-feed" id="reviews-feed"></div>
+
+                    <!-- Right: Inspector Panel -->
+                    <div class="review-inspector" id="review-inspector">
+                        <div class="inspector-empty">
+                            <div class="empty-icon">🔍</div>
+                            <h4>Select a review</h4>
+                            <p>Click any review in the feed to inspect, moderate, and respond to it here.</p>
+                            <div class="kbd-hint">
+                                <span class="kbd">↑</span><span class="kbd">↓</span> Navigate
+                                &nbsp;·&nbsp;
+                                <span class="kbd">H</span> Hide
+                                &nbsp;·&nbsp;
+                                <span class="kbd">R</span> Reply
+                                &nbsp;·&nbsp;
+                                <span class="kbd">E</span> Edit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Reply to Review Modal ── -->
+    <div class="review-modal-overlay" id="reply-review-modal" onclick="if(event.target === this) closeReplyModal()">
+        <div class="review-modal" style="max-width: 500px;">
+            <h3>💬 Reply to Review</h3>
+            <p id="reply-to-info" style="font-size:12px; color:var(--color-text-muted); margin-bottom:15px;"></p>
+            <div class="form-group">
+                <label class="form-label">Your Response</label>
+                <textarea id="reply-message" class="form-textarea" rows="4" placeholder="Write a public reply..."
+                    style="background:#f9f9f9;"></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:20px;">
+                <button class="btn btn-outline btn-sm" onclick="closeReplyModal()">Cancel</button>
+                <button class="btn btn-primary btn-sm" id="save-reply-btn" onclick="submitAdminReply()">Save
+                    Reply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Edit Review Modal ── -->
+    <div class="review-modal-overlay" id="edit-review-modal" onclick="if(event.target === this) closeEditModal()">
+        <div class="review-modal" style="max-width: 500px;">
+            <h3>✏️ Edit Review Content</h3>
+            <div class="form-group">
+                <label class="form-label">Update Rating</label>
+                <select id="edit-rating" class="form-input">
+                    <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+                    <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+                    <option value="3">⭐⭐⭐ 3 Stars</option>
+                    <option value="2">⭐⭐ 2 Stars</option>
+                    <option value="1">⭐ 1 Star</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top:15px;">
+                <label class="form-label">Review Comment</label>
+                <textarea id="edit-comment" class="form-textarea" rows="5"
+                    placeholder="Update customer comment..."></textarea>
+            </div>
+            <div id="edit-image-moderation" style="margin-top:15px;">
+                <label class="form-label">Review Images (Select to Hide)</label>
+                <div id="edit-images-list"
+                    style="display:flex; gap:10px; flex-wrap:wrap; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid var(--color-border);">
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:20px;">
+                <button class="btn btn-outline btn-sm" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary btn-sm" id="save-admin-review-btn" onclick="saveAdminReviewEdit()">Save
+                    Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Premium Lightbox ── -->
+    <div id="review-lightbox" class="review-lightbox" onclick="closeReviewLightbox()">
+        <div class="review-lightbox-inner" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeReviewLightbox()">✕</button>
+            <div class="review-lightbox-content">
+                <div class="lightbox-image-section">
+                    <button class="nav-arrow left" onclick="prevImage()">‹</button>
+                    <img id="lightbox-main-image" src="">
+                    <button class="nav-arrow right" onclick="nextImage()">›</button>
+                    <div class="image-counter" id="image-counter"></div>
+                    <div class="lightbox-thumbs" id="lightbox-thumbs"></div>
+                </div>
+                <div class="lightbox-review-section">
+                    <div id="lightbox-review-details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../js/cache.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/db.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        /* ═══════════════════════════════════════════════
+           STATE
+        ═══════════════════════════════════════════════ */
+        let allReviewData = [];      // [{ productId, productTitle, reviews:[] }]
+        let flatReviews = [];      // flat list for keyboard nav
+        let activeIndex = -1;      // currently selected review index in flatReviews
+        let currentHeatFilter = '';  // '' | '1'..'5'
+
+        // Lightbox state
+        let currentImages = [];
+        let currentIndex = 0;
+
+        /* ── Bootstrap ── */
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAdminSidebar('/admin/reviews');
+            const user = await requireAdmin();
+            const userData = await getUser(user.uid);
+            const name = userData?.name || user.email;
+
+            document.getElementById('admin-name').textContent = name;
+            const avatarEl = document.getElementById('admin-avatar');
+            if (userData?.profileImage) {
+                avatarEl.innerHTML = `<img src="${userData.profileImage}" alt="${name.charAt(0)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+
+            loadAllReviews();
+        });
+
+        /* ═══════════════════════════════════════════════
+           DATA LOADING
+        ═══════════════════════════════════════════════ */
+        async function loadAllReviews() {
+            try {
+                const products = await getProducts();
+                const productReviews = await Promise.all(products.map(async p => {
+                    const reviews = await getReviews(p.id, true);
+                    return { productId: p.id, productTitle: p.title, reviews };
+                }));
+                allReviewData = productReviews.filter(pr => pr.reviews.length > 0);
+
+                document.getElementById('reviews-loading').classList.add('hidden');
+                document.getElementById('reviews-workspace-wrap').classList.remove('hidden');
+
+                updateStats();
+                buildFlatList();
+                renderFeed();
+            } catch (err) {
+                document.getElementById('reviews-loading').innerHTML =
+                    `<p style="color:var(--color-danger); text-align:center;">Could not load reviews: ${err.message}</p>`;
+            }
+        }
+
+        function buildFlatList() {
+            // Sort flagged/hidden reviews to top for visibility
+            flatReviews = [];
+            allReviewData.forEach(pr => {
+                pr.reviews.forEach(r => {
+                    const reportCount = r.reports ? Object.keys(r.reports).length : 0;
+                    flatReviews.push({ ...r, productId: pr.productId, productTitle: pr.productTitle, reportCount });
+                });
+            });
+            // Sort: flagged first, then by date desc
+            flatReviews.sort((a, b) => {
+                const aPri = (a.reportCount >= 3 ? 1 : 0) + (a.hidden ? 1 : 0);
+                const bPri = (b.reportCount >= 3 ? 1 : 0) + (b.hidden ? 1 : 0);
+                if (bPri !== aPri) return bPri - aPri;
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+        }
+
+        /* ═══════════════════════════════════════════════
+           STATS
+        ═══════════════════════════════════════════════ */
+        function updateStats() {
+            const totalReviews = allReviewData.reduce((s, pr) => s + pr.reviews.length, 0);
+            const productsReviewed = allReviewData.length;
+            const allRatings = allReviewData.flatMap(pr => pr.reviews.map(r => Number(r.rating || 0)));
+            const avgRating = allRatings.length
+                ? (allRatings.reduce((s, r) => s + r, 0) / allRatings.length).toFixed(1)
+                : '—';
+
+            document.getElementById('stat-total-reviews').textContent = totalReviews;
+            document.getElementById('stat-products-with-reviews').textContent = productsReviewed;
+            document.getElementById('stat-avg-rating').textContent = avgRating + (allRatings.length ? ' ⭐' : '');
+
+            // Heat filter counts
+            [5, 4, 3, 2, 1].forEach(n => {
+                const el = document.getElementById(`heat-count-${n}`);
+                if (el) el.textContent = `(${allRatings.filter(r => Math.round(r) === n).length})`;
+            });
+        }
+
+        /* ═══════════════════════════════════════════════
+           FILTER
+        ═══════════════════════════════════════════════ */
+        function setHeatFilter(btn, rating) {
+            document.querySelectorAll('.heat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentHeatFilter = rating;
+            applyFilter();
+        }
+
+        function applyFilter() {
+            const search = document.getElementById('search-product').value.toLowerCase().trim();
+
+            let filtered = flatReviews.filter(r => {
+                const matchRating = !currentHeatFilter || Math.round(Number(r.rating)) === Number(currentHeatFilter);
+                const matchSearch = !search ||
+                    r.productTitle.toLowerCase().includes(search) ||
+                    (r.userName || '').toLowerCase().includes(search);
+                return matchRating && matchSearch;
+            });
+
+            renderFeed(filtered);
+        }
+
+        function getFilteredReviews() {
+            const search = document.getElementById('search-product').value.toLowerCase().trim();
+            return flatReviews.filter(r => {
+                const matchRating = !currentHeatFilter || Math.round(Number(r.rating)) === Number(currentHeatFilter);
+                const matchSearch = !search ||
+                    r.productTitle.toLowerCase().includes(search) ||
+                    (r.userName || '').toLowerCase().includes(search);
+                return matchRating && matchSearch;
+            });
+        }
+
+        /* ═══════════════════════════════════════════════
+           RENDER FEED
+        ═══════════════════════════════════════════════ */
+        function renderStars(rating, size) {
+            let s = '';
+            for (let i = 1; i <= 5; i++) s += i <= Math.round(rating) ? '★' : '☆';
+            return s;
+        }
+
+        function renderFeed(list) {
+            if (!list) list = getFilteredReviews();
+            const feed = document.getElementById('reviews-feed');
+            const total = list.length;
+            document.getElementById('reviews-count-label').textContent =
+                `${total} review${total !== 1 ? 's' : ''}`;
+
+            if (!list.length) {
+                feed.innerHTML = `<div class="feed-empty"><div class="empty-icon">⭐</div><p>No reviews match your filters.</p></div>`;
+                return;
+            }
+
+            // Separate flagged from normal
+            const flagged = list.filter(r => r.reportCount >= 3 || r.hidden);
+            const normal = list.filter(r => r.reportCount < 3 && !r.hidden);
+
+            let html = '';
+
+            if (flagged.length) {
+                html += `<div class="feed-section-label">⚠️ Needs Attention (${flagged.length})</div>`;
+                html += flagged.map((r, i) => reviewPreviewHTML(r, list.indexOf(r))).join('');
+            }
+
+            if (normal.length) {
+                html += `<div class="feed-section-label">All Reviews (${normal.length})</div>`;
+                html += normal.map((r, i) => reviewPreviewHTML(r, list.indexOf(r))).join('');
+            }
+
+            feed.innerHTML = html;
+
+            // Re-highlight active
+            if (activeIndex >= 0) {
+                const a = feed.querySelector(`[data-idx="${activeIndex}"]`);
+                if (a) a.classList.add('active');
+            }
+        }
+
+        function reviewPreviewHTML(r, idx) {
+            const badges = [];
+            if (r.hidden) badges.push(`<span class="preview-badge badge-hidden">🚫 Hidden</span>`);
+            if (r.reportCount >= 3) badges.push(`<span class="preview-badge badge-flagged">🚩 ${r.reportCount} Reports</span>`);
+            if (r.verified) badges.push(`<span class="preview-badge badge-verified">✔ Verified</span>`);
+            if (r.images && r.images.length) badges.push(`<span class="preview-badge badge-photos">🖼 ${r.images.length} Photo${r.images.length > 1 ? 's' : ''}</span>`);
+            if (r.adminReply) badges.push(`<span class="preview-badge badge-replied">💬 Replied</span>`);
+
+            return `<div class="review-preview${r.hidden ? ' hidden-review' : ''}"
+                        data-idx="${idx}"
+                        onclick="selectReview(${idx})">
+                <div class="review-preview-top">
+                    <span class="review-preview-author">${escapeHtml(r.userName || 'Customer')}</span>
+                    <span class="preview-stars">${renderStars(r.rating)}</span>
+                </div>
+                <div class="review-preview-product">📦 ${escapeHtml(r.productTitle)}</div>
+                <div class="review-preview-comment">${escapeHtml(r.comment || '')}</div>
+                ${badges.length ? `<div class="preview-badges">${badges.join('')}</div>` : ''}
+            </div>`;
+        }
+
+        /* ═══════════════════════════════════════════════
+           INSPECTOR PANEL
+        ═══════════════════════════════════════════════ */
+        function selectReview(idx) {
+            const list = getFilteredReviews();
+            if (idx < 0 || idx >= list.length) return;
+            activeIndex = idx;
+
+            // Highlight feed card
+            document.querySelectorAll('.review-preview').forEach(el => el.classList.remove('active'));
+            const card = document.querySelector(`.review-preview[data-idx="${idx}"]`);
+            if (card) {
+                card.classList.add('active');
+                card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+
+            renderInspector(list[idx]);
+        }
+
+        function renderInspector(r) {
+            const inspector = document.getElementById('review-inspector');
+            const stars = renderStars(r.rating);
+            const helpfulCount = r.helpful ? Object.keys(r.helpful).length : 0;
+            const reportCount = r.reportCount || (r.reports ? Object.keys(r.reports).length : 0);
+            const dateStr = r.createdAt
+                ? new Date(r.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                : '—';
+
+            // Status strips
+            let strips = '';
+            if (r.hidden) strips += `<div class="status-strip hidden-strip">🚫 This review is currently hidden from customers</div>`;
+            if (reportCount >= 5) strips += `<div class="status-strip flagged-strip">⚠️ Auto-hidden — received ${reportCount} reports</div>`;
+            else if (reportCount >= 3) strips += `<div class="status-strip flagged-strip">🚩 ${reportCount} customer reports — review recommended</div>`;
+
+            // Action toolbar
+            const hideLabel = r.hidden ? '👁️ Show' : '🚫 Hide';
+            const hideCls = r.hidden ? 'tool-btn-show' : 'tool-btn-hide';
+
+            // Images
+            let imagesHtml = '';
+            if (r.images && r.images.length > 0) {
+                imagesHtml = `<div class="inspector-images">
+                    ${r.images.map((img, i) => {
+                    const isHidden = r.hiddenImages && r.hiddenImages.includes(img);
+                    return `<img src="${img}" class="${isHidden ? 'img-hidden' : ''}"
+                            title="${isHidden ? 'Image hidden from customers' : 'Click to view'}"
+                            onclick="openReviewLightbox('${r.productId}', '${r.id}', ${i})">`;
+                }).join('')}
+                </div>`;
+            }
+
+            // Admin reply
+            let replyHtml = '';
+            if (r.adminReply) {
+                replyHtml = `<div class="inspector-reply-box">
+                    <strong>Store Response</strong>
+                    ${escapeHtml(r.adminReply.message)}
+                </div>`;
+            }
+
+            inspector.innerHTML = `
+                ${strips}
+
+                <div class="inspector-header">
+                    <h3>Customer Review</h3>
+                    <div class="inspector-toolbar">
+                        <button class="tool-btn tool-btn-reply"
+                            onclick="openReplyModal('${r.productId}', '${r.id}', '${escapeHtml(r.userName || 'Customer')}', '${r.adminReply ? encodeURIComponent(r.adminReply.message) : ''}')">
+                            💬 Reply
+                        </button>
+                        <button class="tool-btn tool-btn-edit"
+                            onclick="editReviewAdmin('${r.productId}', '${r.id}', '${encodeURIComponent(JSON.stringify(r))}')">
+                            ✏️ Edit
+                        </button>
+                        <button class="tool-btn ${hideCls}"
+                            id="inspector-hide-btn"
+                            onclick="toggleHideReviewAdmin('${r.productId}', '${r.id}', ${!r.hidden})">
+                            ${hideLabel}
+                        </button>
+                        <button class="tool-btn tool-btn-delete"
+                            onclick="deleteReviewAdmin('${r.productId}', '${r.id}', '${escapeHtml(r.userName || 'Customer')}')">
+                            🗑 Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="inspector-meta-row">
+                    <span class="inspector-stars">${stars}</span>
+                    <span class="inspector-author">${escapeHtml(r.userName || 'Customer')}</span>
+                    <span class="inspector-date">${dateStr}</span>
+                    ${r.verified ? '<span class="preview-badge badge-verified">✔ Verified Purchase</span>' : ''}
+                    <a href="/product/?id=${r.productId}" target="_blank" class="inspector-product-link">📦 ${escapeHtml(r.productTitle)} →</a>
+                </div>
+
+                <div class="inspector-comment">${escapeHtml(r.comment || '')}</div>
+
+                <div class="inspector-stats">
+                    <div class="istat">
+                        <div class="istat-val">${helpfulCount}</div>
+                        <div class="istat-label">👍 Helpful</div>
+                    </div>
+                    <div class="istat${reportCount > 0 ? ' danger' : ''}">
+                        <div class="istat-val">${reportCount}</div>
+                        <div class="istat-label">🚩 Reports</div>
+                    </div>
+                    <div class="istat">
+                        <div class="istat-val">${r.images ? r.images.length : 0}</div>
+                        <div class="istat-label">🖼 Photos</div>
+                    </div>
+                    <div class="istat">
+                        <div class="istat-val">${r.adminReply ? '✓' : '—'}</div>
+                        <div class="istat-label">💬 Replied</div>
+                    </div>
+                </div>
+
+                ${imagesHtml}
+                ${replyHtml}
+            `;
+        }
+
+        /* ═══════════════════════════════════════════════
+           KEYBOARD NAVIGATION
+        ═══════════════════════════════════════════════ */
+        document.addEventListener('keydown', e => {
+            // Skip if focus is on an input/textarea
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+            // Skip if a modal is open
+            if (document.querySelector('.review-modal-overlay.open')) return;
+
+            const list = getFilteredReviews();
+            if (!list.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectReview(Math.min(activeIndex + 1, list.length - 1));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectReview(Math.max(activeIndex - 1, 0));
+            } else if (e.key === 'h' || e.key === 'H') {
+                if (activeIndex >= 0) {
+                    const r = list[activeIndex];
+                    toggleHideReviewAdmin(r.productId, r.id, !r.hidden);
+                }
+            } else if (e.key === 'r' || e.key === 'R') {
+                if (activeIndex >= 0) {
+                    const r = list[activeIndex];
+                    openReplyModal(r.productId, r.id, r.userName || 'Customer',
+                        r.adminReply ? encodeURIComponent(r.adminReply.message) : '');
+                }
+            } else if (e.key === 'e' || e.key === 'E') {
+                if (activeIndex >= 0) {
+                    const r = list[activeIndex];
+                    editReviewAdmin(r.productId, r.id, encodeURIComponent(JSON.stringify(r)));
+                }
+            } else if (e.key === 'Escape') {
+                closeReplyModal();
+                closeEditModal();
+                closeReviewLightbox();
+            }
+        });
+
+        /* ═══════════════════════════════════════════════
+           MODERATION ACTIONS
+        ═══════════════════════════════════════════════ */
+        async function toggleHideReviewAdmin(productId, userId, shouldHide) {
+            try {
+                await hideReview(productId, userId, shouldHide);
+                showToast(shouldHide ? 'Review hidden.' : 'Review is now visible.', 'success');
+                await loadAllReviews();
+                // Re-render inspector with updated data
+                const list = getFilteredReviews();
+                if (activeIndex >= 0 && activeIndex < list.length) renderInspector(list[activeIndex]);
+            } catch (err) {
+                showToast('Action failed: ' + err.message, 'error');
+            }
+        }
+
+        let adminEditReviewData = null;
+        function editReviewAdmin(productId, userId, reviewJson) {
+            const review = JSON.parse(decodeURIComponent(reviewJson));
+            adminEditReviewData = { productId, userId, review };
+
+            document.getElementById('edit-rating').value = review.rating || 5;
+            document.getElementById('edit-comment').value = review.comment || '';
+
+            const list = document.getElementById('edit-images-list');
+            if (review.images && review.images.length > 0) {
+                list.parentElement.style.display = 'block';
+                const hiddenSet = new Set(review.hiddenImages || []);
+                list.innerHTML = review.images.map(url => `
+                    <div style="position:relative; width:80px; height:80px;">
+                        <img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">
+                        <label style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.7); color:#fff; font-size:9px; display:flex; align-items:center; gap:3px; padding:2px; cursor:pointer; border-radius:0 0 4px 4px;">
+                            <input type="checkbox" class="hide-img-check" value="${url}" ${hiddenSet.has(url) ? 'checked' : ''} style="width:10px;height:10px;"> Hide
+                        </label>
+                    </div>
+                `).join('');
+            } else {
+                list.parentElement.style.display = 'none';
+            }
+            document.getElementById('edit-review-modal').classList.add('open');
+        }
+
+        async function saveAdminReviewEdit() {
+            if (!adminEditReviewData) return;
+            const rating = document.getElementById('edit-rating').value;
+            const comment = document.getElementById('edit-comment').value.trim();
+
+            const hiddenImages = [];
+            document.querySelectorAll('.hide-img-check:checked').forEach(cb => hiddenImages.push(cb.value));
+
+            const btn = document.getElementById('save-admin-review-btn');
+            btn.disabled = true;
+            try {
+                await writeReview(adminEditReviewData.productId, {
+                    userId: adminEditReviewData.userId,
+                    rating, comment, hiddenImages
+                });
+                showToast('Review content updated.', 'success');
+                closeEditModal();
+                loadAllReviews();
+            } catch (err) {
+                showToast('Update failed: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-review-modal').classList.remove('open');
+        }
+
+        let adminReplyData = null;
+        function openReplyModal(productId, userId, userName, currentReply) {
+            adminReplyData = { productId, userId };
+            document.getElementById('reply-to-info').textContent = 'Replying to ' + userName;
+            document.getElementById('reply-message').value = currentReply ? decodeURIComponent(currentReply) : '';
+            document.getElementById('reply-review-modal').classList.add('open');
+        }
+
+        async function submitAdminReply() {
+            if (!adminReplyData) return;
+            const message = document.getElementById('reply-message').value.trim();
+            if (!message) { showToast('Please enter a message.', 'warning'); return; }
+
+            const btn = document.getElementById('save-reply-btn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                await saveAdminReply(adminReplyData.productId, adminReplyData.userId, message);
+                showToast('Reply saved! ✉️', 'success');
+                closeReplyModal();
+                loadAllReviews();
+            } catch (err) {
+                showToast('Reply failed: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Reply';
+            }
+        }
+
+        function closeReplyModal() {
+            document.getElementById('reply-review-modal').classList.remove('open');
+        }
+
+        async function deleteReviewAdmin(productId, userId, userName) {
+            const confirmed = await confirmDialog(`Delete review by "${userName}"? This cannot be undone.`);
+            if (!confirmed) return;
+            try {
+                await deleteReview(productId, userId);
+                showToast('Review deleted successfully.', 'success');
+                activeIndex = -1;
+                loadAllReviews();
+            } catch (err) {
+                showToast('Could not delete review: ' + err.message, 'error');
+            }
+        }
+
+        async function adminSignOut() {
+            await signOutUser();
+            window.location.href = '../../login.html';
+        }
+
+        /* ═══════════════════════════════════════════════
+           PREMIUM LIGHTBOX
+        ═══════════════════════════════════════════════ */
+        async function openReviewLightbox(productId, reviewUserId, imageIndex) {
+            const modal = document.getElementById('review-lightbox');
+            if (!modal) return;
+
+            let review = null;
+            for (let pr of allReviewData) {
+                if (pr.productId === productId) {
+                    review = pr.reviews.find(r => r.id === reviewUserId);
+                    break;
+                }
+            }
+            if (!review) return;
+            review.productId = productId;
+            review.userId = reviewUserId;
+
+            currentImages = review.images || [];
+            currentIndex = imageIndex;
+
+            updateLightboxImage();
+            renderLightboxThumbs();
+            renderReviewDetails(review);
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateLightboxImage() {
+            const img = document.getElementById('lightbox-main-image');
+            if (!img) return;
+            img.src = currentImages[currentIndex];
+            const counter = document.getElementById('image-counter');
+            if (counter) counter.innerText = `${currentIndex + 1} / ${currentImages.length}`;
+        }
+
+        function renderLightboxThumbs() {
+            const container = document.getElementById('lightbox-thumbs');
+            if (!container) return;
+            if (currentImages.length <= 1) { container.style.display = 'none'; return; }
+            container.style.display = 'flex';
+            container.innerHTML = currentImages.map((img, i) =>
+                `<img src="${img}" class="${i === currentIndex ? 'active' : ''}" onclick="goToImage(${i})">`
+            ).join('');
+        }
+
+        function renderReviewDetails(review) {
+            const details = document.getElementById('lightbox-review-details');
+            if (!details) return;
+            const helpfulCount = review.helpful ? Object.keys(review.helpful).length : 0;
+            const reportCount = review.reports ? Object.keys(review.reports).length : 0;
+
+            details.innerHTML = `
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                        <h3 style="margin:0; font-size:20px; font-weight:700; color:#3a2a1a;">${escapeHtml(review.userName || 'Customer')}</h3>
+                        <span style="color:#fbbf24; font-size:16px;">${renderStars(review.rating)}</span>
+                    </div>
+                </div>
+                <div style="flex:1; margin-bottom:24px;">
+                    <p style="font-size:15px; line-height:1.6; color:var(--color-text-main); margin:0; white-space:pre-wrap;">${escapeHtml(review.comment)}</p>
+                </div>
+                <div style="margin-bottom:24px; font-size:13px; color:var(--color-text-muted); display:flex; gap:16px; background:#f9f9f9; padding:10px; border-radius:8px;">
+                    <span>👍 Helpful: <strong>${helpfulCount}</strong></span>
+                    <span style="${reportCount > 0 ? 'color:#dc2626;' : ''}">🚩 Reports: <strong>${reportCount}</strong></span>
+                </div>
+                ${review.adminReply ? `
+                <div style="background:#fdfaf6; padding:12px; border-left:3px solid var(--color-primary); border-radius:4px; margin-bottom:24px;">
+                    <strong style="display:block; font-size:13px; color:var(--color-primary); margin-bottom:4px;">Your Response:</strong>
+                    <p style="font-size:14px; font-style:italic; margin:0;">${escapeHtml(review.adminReply.message)}</p>
+                </div>` : ''}
+                <div style="border-top:1px solid var(--color-border); padding-top:20px; margin-top:auto;">
+                    <span style="font-size:13px; color:var(--color-text-muted);">
+                        Reviewed on ${new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                    ${review.hidden ? '<div style="color:#dc2626;font-size:12px;font-weight:700;margin-top:8px;">🚫 THIS REVIEW IS CURRENTLY HIDDEN</div>' : ''}
+                    ${reportCount >= 5 ? '<div style="color:#dc2626;font-size:12px;font-weight:700;margin-top:4px;">⚠️ AUTO-HIDDEN DUE TO 5+ REPORTS</div>' : ''}
+                </div>
+            `;
+        }
+
+        function nextImage() { if (currentIndex < currentImages.length - 1) { currentIndex++; updateLightboxImage(); renderLightboxThumbs(); } }
+        function prevImage() { if (currentIndex > 0) { currentIndex--; updateLightboxImage(); renderLightboxThumbs(); } }
+        function goToImage(i) { currentIndex = i; updateLightboxImage(); renderLightboxThumbs(); }
+
+        function closeReviewLightbox() {
+            const modal = document.getElementById('review-lightbox');
+            if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,509 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders — Admin — Devanshik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/design-system.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="icon" type="image/png" href="/assets/images/icon.png">
+</head>
+
+<body class="admin-body">
+    <!-- ═══ SIDEBAR (loaded dynamically) ═══════════════════════════ -->
+    <div id="admin-sidebar-container"></div>
+
+    <!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                <button class="btn btn-ghost btn-sm admin-mobile-toggle"
+                    onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+                <span class="admin-page-title">Orders</span>
+            </div>
+            <div class="topbar-actions">
+                <div class="topbar-user">
+                    <div class="topbar-avatar" id="admin-avatar">A</div><span id="admin-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- Filter bar -->
+            <div
+                style="display:flex; gap:var(--space-3); margin-bottom:var(--space-5); flex-wrap:wrap; align-items:center;">
+                <input type="text" class="form-input" id="order-search" placeholder="Search by name / order ID…"
+                    oninput="filterOrders()" style="flex:1; max-width:280px; font-size:var(--text-sm);">
+                <select class="form-select" id="status-filter" onchange="filterOrders()" style="width:auto;">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Printed">Printed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Completed">Completed</option>
+                </select>
+                <select class="form-select" id="type-filter" onchange="filterOrders()" style="width:auto;">
+                    <option value="">All Types</option>
+                    <option value="physical">Physical</option>
+                    <option value="digital">Digital</option>
+                </select>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3>All Orders <span id="order-count-badge" class="badge badge-processing">0</span></h3>
+                </div>
+                <div id="orders-loading" style="text-align:center; padding:var(--space-8);">
+                    <div class="spinner"></div>
+                </div>
+                <div id="orders-table" class="hidden">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Type</th>
+                                    <th>Product Title</th>
+                                    <th>Category</th>
+                                    <th>Total</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Order Detail Modal ════════════════════════════════════ -->
+    <div class="modal-overlay" id="order-detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="order-modal-id">Order Details</h3>
+                <button class="modal-close" onclick="closeOrderModal()">✕</button>
+            </div>
+            <div class="modal-body" id="order-modal-body"></div>
+        </div>
+    </div>
+
+
+    <!-- Invoice Modal (Proper Setup) -->
+    <div id="invoice-modal" class="hidden invoice-modal">
+        <div class="invoice-box">
+            <button class="close-btn" onclick="closeInvoiceModal()">✕</button>
+            <div id="invoice-content"></div>
+            <div style="margin-top: var(--space-6); display: flex; gap: var(--space-3);">
+                <button class="btn btn-primary w-full" id="invoice-download-btn-fixed">📄 Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/db.js"></script>
+    <script src="/js/load-components.js"></script>
+    <script>
+        const ORDER_STATUSES = ['Pending', 'Processing', 'Printed', 'Shipped', 'Delivered', 'Completed', 'Cancelled'];
+        let allOrders = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadAdminSidebar('/admin/orders');
+
+            const user = await requireAdmin();
+            const ud = await getUser(user.uid);
+            const name = ud?.name || user.email;
+            document.getElementById('admin-name').textContent = name;
+            document.getElementById('admin-avatar').textContent = name.charAt(0).toUpperCase();
+            loadOrders();
+        });
+
+        async function loadOrders() {
+            try {
+                allOrders = await getOrders();
+                document.getElementById('orders-loading').classList.add('hidden');
+                document.getElementById('orders-table').classList.remove('hidden');
+
+                const urlUid = new URLSearchParams(window.location.search).get('uid');
+                const toRender = urlUid ? allOrders.filter(o => o.userId === urlUid) : allOrders;
+
+                document.getElementById('order-count-badge').textContent = toRender.length;
+                renderOrders(toRender);
+            } catch (err) {
+                document.getElementById('orders-loading').innerHTML = `<p style="color:var(--color-danger); padding:var(--space-4);">Could not load orders: ${err.message}</p>`;
+            }
+        }
+
+        function renderOrders(list) {
+            const tbody = document.getElementById('orders-tbody');
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:var(--space-8); color:var(--color-text-muted);">No orders found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map(o => `
+         <tr style="cursor:pointer;" onclick="viewOrder('${o.id}')">
+          <td style="word-break:break-all;"><strong>${shortOrderId(o.id)}</strong></td>
+          <td>${o.address?.fullName || o.userEmail || 'Guest'}</td>
+          <td><span class="badge" style="background:var(--color-surface-alt);">${o.orderType === 'digital' ? '⚡ Digital' : '📦 Physical'}</span></td>
+          <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${o.products?.[0]?.title || '—'}${o.products?.length > 1 ? ` (+${o.products.length - 1})` : ''}</td>
+          <td>${o.products?.[0]?.category || '—'}</td>
+          <td style="color:var(--color-primary); font-weight:700;">${formatCurrency(o.totalAmount || 0)}</td>
+          <td><span class="badge badge-${(o.paymentStatus || 'COD').toLowerCase() === 'paid' || o.paymentStatus === 'completed' ? 'delivered' : 'processing'}">${o.paymentMethod || o.paymentStatus || 'COD'}</span></td>
+          <td onclick="event.stopPropagation()">
+            <select class="status-select" onchange="changeStatus('${o.id}', this.value)">
+              ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === (o.orderStatus || 'Pending') ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td>${formatDateShort(o.createdAt)}</td>
+        </tr>`).join('');
+        }
+
+        function filterOrders() {
+            const q = document.getElementById('order-search').value.toLowerCase();
+            const status = document.getElementById('status-filter').value;
+            const type = document.getElementById('type-filter').value;
+            const urlUid = new URLSearchParams(window.location.search).get('uid');
+            let filtered = allOrders;
+            if (urlUid) filtered = filtered.filter(o => o.userId === urlUid);
+            filtered = filtered.filter(o => {
+                const matchStatus = !status || o.orderStatus === status;
+                const matchType = !type || o.orderType === type;
+                const name = o.address?.fullName || o.address?.name || '';
+                const matchQ = !q || shortOrderId(o.id).toLowerCase().includes(q) || name.toLowerCase().includes(q) || (o.userEmail || '').toLowerCase().includes(q);
+                return matchStatus && matchType && matchQ;
+            });
+            document.getElementById('order-count-badge').textContent = filtered.length;
+            renderOrders(filtered);
+        }
+
+        async function changeStatus(orderId, status) {
+            try {
+                await updateOrderStatus(orderId, status);
+                const idx = allOrders.findIndex(o => o.id === orderId);
+                if (idx >= 0) allOrders[idx].orderStatus = status;
+                showToast(`Status → ${status}`, 'success');
+            } catch { showToast('Could not update status.', 'error'); }
+        }
+
+        function viewOrder(id) {
+            const o = allOrders.find(x => x.id === id);
+            if (!o) return;
+            const addr = o.address;
+            const addrLine = addr ? [addr.fullAddress || addr.line1, addr.line2, addr.city, addr.state, addr.pincode || addr.pin].filter(Boolean).join(', ') : 'N/A (Digital)';
+
+            document.getElementById('order-modal-id').textContent = `Order ${shortOrderId(o.id)}`;
+            document.getElementById('order-modal-body').innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); margin-bottom:var(--space-5);">
+          <div><div class="form-label">Customer</div><div>${escapeHtml(addr?.fullName || addr?.name || o.userEmail || 'Guest')}</div></div>
+          <div><div class="form-label">Phone</div><div>${addr?.phone || '—'}</div></div>
+          <div style="grid-column:1/-1;"><div class="form-label">Address</div><div>${addrLine}</div></div>
+          <div><div class="form-label">Payment</div><div>${o.paymentMethod || 'COD'} — ${o.paymentStatus || 'pending'}</div></div>
+          <div><div class="form-label">Date</div><div>${formatDate(o.createdAt)}</div></div>
+        </div>
+        <div class="form-label">Ordered Items</div>
+        ${(o.products || []).map(p => `
+        <div style="display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) 0; border-bottom:1px solid var(--color-border); font-size:var(--text-sm);">
+          <img src="${p.imageUrl || 'https://placehold.co/44x44/F4EFE9/C17B3A?text=P'}" style="width:44px;height:44px;border-radius:var(--radius-md);object-fit:cover;">
+          <div style="flex:1;">
+            ${escapeHtml(p.title)}${p.size ? ` - ${p.size}` : ''}
+            ${p.productType === 'digital' ? `<br><a href="${escapeHtml(p.downloadUrl || (p.downloadFiles && p.downloadFiles[0]))}" target="_blank" style="color:var(--color-primary); font-size:11px;">🔗 Download Link</a>` : ''}
+            ${p.uploadedPhotoUrl ? '<br><span style="color:var(--color-success); font-size:11px;">📸 Custom photo uploaded</span>' : ''}
+          </div>
+          <div style="text-align:right; font-weight:700;">${formatCurrency((p.finalPrice || p.price) * p.qty)} <div style="font-weight:400; color:var(--color-text-muted);">×${p.qty}</div></div>
+        </div>`).join('')}
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:var(--text-lg); margin-top:var(--space-4);">
+          <span>Total</span><span style="color:var(--color-primary);">${formatCurrency(o.totalAmount || 0)}</span>
+        </div>
+        <div style="margin-top:var(--space-6); display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2);">
+            <button class="btn btn-outline w-full" onclick="viewInvoice('${o.id}')">👁️ View Invoice</button>
+            <button class="btn btn-primary w-full" onclick="downloadInvoice('${o.id}')">📄 Download PDF</button>
+        </div>`;
+            document.getElementById('order-detail-modal').classList.add('active');
+        }
+
+        async function viewInvoice(orderId) {
+            const order = allOrders.find(x => x.id === orderId) || await getOrder(orderId);
+            if (!order) { showToast('Order not found', 'error'); return; }
+
+            const isV2 = (order.orderVersion || 1) >= 2;
+            const items = order.products || order.items || [];
+            const subtotal = order.subtotal ?? items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
+            const hasPhysical = items.some(i => i.productType !== 'digital');
+            const shipping = order.shippingCharge ?? (hasPhysical ? (subtotal >= 499 ? 0 : 59) : 0);
+            const gst = order.gstAmount ?? Math.round(subtotal * 0.18);
+            const total = order.totalAmount ?? (subtotal + shipping + gst);
+
+            const invNum = order.invoiceNumber || ('INV-' + orderId.substring(0, 8).toUpperCase());
+            const date = new Date(order.createdAt).toLocaleDateString();
+
+            let itemsHtml = items.map(p => {
+                const itemPrice = isV2 ? (p.finalPrice || p.price) : p.price;
+                const discountInfo = (isV2 && p.discountApplied > 0) ?
+                    `<div style="font-size:10px; color:var(--color-text-muted);">
+                        <span style="text-decoration:line-through;">${formatCurrency(p.originalPrice)}</span> 
+                        (-${formatCurrency(p.discountApplied)})
+                    </div>` : '';
+
+                return `
+                    <div style="margin-bottom:var(--space-2);">
+                        <div style="display:flex; justify-content:space-between; font-size:var(--text-sm);">
+                            <span>${escapeHtml(p.title)} ${p.size ? `- ${p.size}` : ''} x${p.qty}</span>
+                            <span>${formatCurrency(itemPrice * p.qty)}</span>
+                        </div>
+                        ${discountInfo}
+                    </div>
+                `;
+            }).join('');
+
+            let breakdownHtml = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                    <span>Subtotal</span><span>${formatCurrency(order.subtotal || subtotal)}</span>
+                </div>
+            `;
+
+            if (isV2 && order.discountBreakdown) {
+                const db = order.discountBreakdown;
+                if (db.productDiscountTotal > 0) {
+                    breakdownHtml += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1); color:var(--color-success);">
+                            <span>Product Discounts</span><span>-${formatCurrency(db.productDiscountTotal)}</span>
+                        </div>`;
+                }
+                if (db.bogoDiscountTotal > 0) {
+                    breakdownHtml += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1); color:var(--color-success);">
+                            <span>BOGO/Order Discounts</span><span>-${formatCurrency(db.bogoDiscountTotal)}</span>
+                        </div>`;
+                }
+                if (db.couponDiscountTotal > 1) {
+                    breakdownHtml += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1); color:var(--color-success);">
+                            <span>Coupon (${db.appliedCoupon || 'Applied'})</span><span>-${formatCurrency(db.couponDiscountTotal)}</span>
+                        </div>`;
+                }
+            }
+
+            breakdownHtml += `
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                    <span>Shipping Charge</span><span>${shipping === 0 ? 'FREE' : formatCurrency(shipping)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-1);">
+                    <span>GST (18%)</span><span>${formatCurrency(gst)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:var(--text-lg); margin-top:var(--space-4); color:var(--color-primary);">
+                    <span>Total Paid</span><span>${formatCurrency(total)}</span>
+                </div>
+            `;
+
+            if (isV2 && order.discountBreakdown?.totalSavings > 0) {
+                breakdownHtml += `
+                    <div style="text-align:right; color:var(--color-success); font-weight:600; font-size:var(--text-xs); margin-top:4px;">
+                        🎉 Customer saved ${formatCurrency(order.discountBreakdown.totalSavings)}
+                    </div>`;
+            }
+
+            const html = `
+                <div style="text-align:center; margin-bottom:var(--space-6);">
+                    <h2 style="font-family:var(--font-heading); color:var(--color-primary); font-size: 24px;">DEVANSHIK</h2>
+                    <p style="font-size:var(--text-xs); color:var(--color-text-muted);">Sacred Prints & Spiritual Essentials</p>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:var(--space-6); font-size:var(--text-sm);">
+                    <div>
+                        <strong>Invoice To:</strong><br>
+                        ${escapeHtml(order.address?.fullName || order.address?.name || order.userEmail || 'Customer')}<br>
+                        ${escapeHtml(order.address?.line1 || '')} ${escapeHtml(order.address?.line2 || '')}<br>
+                        ${escapeHtml(order.address?.city || '')}, ${escapeHtml(order.address?.state || '')}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Invoice No:</strong> ${invNum}<br>
+                        <strong>Date:</strong> ${date}<br>
+                        <strong>Status:</strong> ${order.paymentStatus || 'pending'}<br>
+                        <strong>Method:</strong> ${order.paymentMethod || 'COD'}
+                    </div>
+                </div>
+                <hr style="border:0; border-top:1px solid var(--color-border); margin-bottom:var(--space-4);">
+                <div style="margin-bottom:var(--space-4);">
+                    ${itemsHtml}
+                </div>
+                <hr style="border:0; border-top:1px solid var(--color-border); margin-bottom:var(--space-4);">
+                <div style="font-size:var(--text-sm);">
+                    ${breakdownHtml}
+                </div>
+            `;
+
+            document.getElementById('invoice-content').innerHTML = html;
+            document.getElementById('invoice-download-btn-fixed').onclick = () => downloadInvoice(orderId);
+            document.getElementById('invoice-modal').classList.remove('hidden');
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoice-modal').classList.add('hidden');
+        }
+
+        async function downloadInvoice(orderId) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const order = allOrders.find(x => x.id === orderId) || await getOrder(orderId);
+            if (!order) { showToast('Order not found', 'error'); return; }
+
+            const isV2 = (order.orderVersion || 1) >= 2;
+            const items = order.products || order.items || [];
+            const subtotal = order.subtotal ?? items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
+            const hasPhysical = items.some(i => i.productType !== 'digital');
+            const shipping = order.shippingCharge ?? (hasPhysical ? (subtotal >= 499 ? 0 : 59) : 0);
+            const gst = order.gstAmount ?? Math.round(subtotal * 0.18);
+            const total = order.totalAmount ?? (subtotal + shipping + gst);
+
+            const invNum = order.invoiceNumber || ('INV-' + orderId.substring(0, 8).toUpperCase());
+
+            // Header
+            doc.setFontSize(22);
+            doc.setTextColor(139, 107, 74);
+            doc.text("DEVANSHIK", 20, 20);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text("Sacred Prints & Spiritual Essentials", 20, 26);
+
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text("INVOICE", 150, 20);
+
+            doc.setFontSize(10);
+            doc.text("Invoice No: " + invNum, 150, 30);
+            doc.text("Order Date: " + new Date(order.createdAt).toLocaleDateString(), 150, 36);
+
+            // Customer Info
+            doc.setFontSize(12);
+            doc.text("Bill To:", 20, 50);
+            doc.setFontSize(10);
+            const addr = order.address || { fullName: order.userEmail || 'Customer' };
+            doc.text(addr.fullName || addr.name || 'Customer', 20, 56);
+            if (addr.phone) doc.text("Phone: " + addr.phone, 20, 62);
+
+            const addrText = [addr.fullAddress || addr.line1, addr.line2, addr.city, addr.state, addr.pincode || addr.pin].filter(Boolean).join(', ');
+            if (addrText) {
+                const lines = doc.splitTextToSize(addrText, 70);
+                doc.text(lines, 20, 68);
+            }
+
+            // Table Header
+            let y = 90;
+            doc.setFillColor(244, 239, 233);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setFontSize(10);
+            doc.text("Item Details", 25, y + 5);
+            doc.text("Qty", 120, y + 5);
+            doc.text("Price", 145, y + 5);
+            doc.text("Amount", 170, y + 5);
+
+            y += 15;
+            // Items
+            items.forEach(item => {
+                doc.setFontSize(10);
+                const title = item.title + (item.size ? ` - ${item.size}` : '');
+                const titleLines = doc.splitTextToSize(title, 90);
+                doc.text(titleLines, 25, y);
+                doc.text(item.qty.toString(), 122, y);
+
+                const itemPrice = isV2 ? (item.finalPrice || item.price) : item.price;
+                doc.text(formatCurrency(itemPrice).replace('₹', 'Rs. '), 145, y);
+                doc.text(formatCurrency(itemPrice * item.qty).replace('₹', 'Rs. '), 170, y);
+                y += (titleLines.length * 6) + 2;
+
+                if (isV2 && item.originalPrice > item.finalPrice) {
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Original: Rs. ${item.originalPrice} (-Rs. ${item.discountApplied})`, 25, y - 2);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(10);
+                    y += 4;
+                }
+            });
+
+            // Breakdown
+            y += 10;
+            doc.line(120, y, 190, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text("Subtotal:", 120, y);
+            doc.text(formatCurrency(order.subtotal || subtotal).replace('₹', 'Rs. '), 170, y);
+            y += 7;
+
+            if (isV2 && order.discountBreakdown) {
+                const db = order.discountBreakdown;
+                if (db.productDiscountTotal > 0) {
+                    doc.text("Product Discount:", 120, y);
+                    doc.text("- " + formatCurrency(db.productDiscountTotal).replace('₹', 'Rs. '), 170, y);
+                    y += 7;
+                }
+                if (db.bogoDiscountTotal > 0) {
+                    doc.text("BOGO Discount:", 120, y);
+                    doc.text("- " + formatCurrency(db.bogoDiscountTotal).replace('₹', 'Rs. '), 170, y);
+                    y += 7;
+                }
+                if (db.couponDiscountTotal > 0) {
+                    doc.text(`Coupon (${db.appliedCoupon || ''}):`, 120, y);
+                    doc.text("- " + formatCurrency(db.couponDiscountTotal).replace('₹', 'Rs. '), 170, y);
+                    y += 7;
+                }
+            }
+
+            doc.text("Shipping Charge:", 120, y);
+            doc.text(shipping === 0 ? 'FREE' : formatCurrency(shipping).replace('₹', 'Rs. '), 170, y);
+            y += 7;
+            doc.text("GST (18%):", 120, y);
+            doc.text(formatCurrency(gst).replace('₹', 'Rs. '), 170, y);
+
+            y += 10;
+            doc.line(120, y, 190, y);
+            y += 10;
+            doc.setFontSize(12);
+            doc.setTextColor(139, 107, 74);
+            doc.text("Total Paid:", 120, y);
+            doc.text(formatCurrency(total).replace('₹', 'Rs. '), 170, y);
+
+            if (isV2 && (order.discountBreakdown?.totalSavings > 0)) {
+                y += 10;
+                doc.setFontSize(10);
+                doc.setTextColor(22, 163, 74);
+                doc.text("Total Savings: " + formatCurrency(order.discountBreakdown.totalSavings).replace('₹', 'Rs. '), 120, y);
+            }
+
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text("Thank you for choosing Devanshik Art.", 105, y + 20, { align: 'center' });
+
+            doc.save(invNum + ".pdf");
+        }
+
+
+        function closeOrderModal() { document.getElementById('order-detail-modal').classList.remove('active'); }
+        async function adminSignOut() { await signOutUser(); window.location.href = '/login'; }
+    </script>
+</body>
+
+</html>
