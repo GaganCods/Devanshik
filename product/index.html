@@ -807,13 +807,15 @@
                         <div class="size-grid" id="size-grid"></div>
                     </div>
 
-                    <!-- Qty + Add to Cart -->
-                    <span class="detail-label">Quantity</span>
-                    <div class="qty-row" style="margin-bottom:var(--space-6);">
-                        <div class="qty-control">
-                            <button class="qty-btn" onclick="changeQty(-1)">−</button>
-                            <input type="number" class="qty-input" id="qty-input" value="1" min="1" max="99">
-                            <button class="qty-btn" onclick="changeQty(1)">+</button>
+                    <!-- Qty + Add to Cart (hidden for digital products) -->
+                    <div id="qty-section">
+                        <span class="detail-label">Quantity</span>
+                        <div class="qty-row" style="margin-bottom:var(--space-6);">
+                            <div class="qty-control">
+                                <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                                <input type="number" class="qty-input" id="qty-input" value="1" min="1" max="99">
+                                <button class="qty-btn" onclick="changeQty(1)">+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -1094,11 +1096,22 @@
                 document.getElementById('digital-info')?.classList.remove('hidden');
                 document.getElementById('stock-badge')?.classList.add('hidden');
                 document.getElementById('size-section')?.classList.add('hidden');
-                // Note: upload-section was removed — no reference needed
+                // Hide quantity selector — digital products are always qty 1
+                document.getElementById('qty-section')?.classList.add('hidden');
+                // Check if already in cart and update button accordingly
+                const cart = getCart();
+                const alreadyInCart = cart.some(i => i.productId === product.id);
+                const atcBtn = document.getElementById('atc-btn');
+                if (alreadyInCart && atcBtn) {
+                    atcBtn.textContent = '✓ Already in Cart';
+                    atcBtn.disabled = true;
+                    atcBtn.style.background = '#059669';
+                }
             } else {
                 typeBadge.textContent = '📦 Physical';
                 typeBadge.style.cssText += '; background:#FEF3C7; color:#92400E;';
                 document.getElementById('digital-info')?.classList.add('hidden');
+                document.getElementById('qty-section')?.classList.remove('hidden');
                 const stockEl = document.getElementById('stock-badge');
                 if (stockEl) {
                     if (product.stock <= 0) {
@@ -1974,8 +1987,18 @@
 
         function handleAddToCart() {
             if (!product) return;
-            const qty = parseInt(document.getElementById('qty-input').value) || 1;
+            const isDigital = product.productType === 'digital';
 
+            // Guard: digital products are always qty 1 and cannot be added twice
+            if (isDigital) {
+                const alreadyInCart = getCart().some(i => i.productId === product.id);
+                if (alreadyInCart) {
+                    showToast('Already in cart ⚡', 'warning');
+                    return;
+                }
+            }
+
+            const qty = isDigital ? 1 : (parseInt(document.getElementById('qty-input').value) || 1);
             const finalPrice = selectedVariant ? selectedVariant.price : (product.discountPrice || product.price);
 
             addToCart({
@@ -1988,6 +2011,16 @@
                 productType: product.productType || 'physical',
                 downloadFiles: product.downloadFiles || []
             });
+
+            // After successfully adding a digital product, update the button
+            if (isDigital) {
+                const atcBtn = document.getElementById('atc-btn');
+                if (atcBtn) {
+                    atcBtn.textContent = '✓ Already in Cart';
+                    atcBtn.disabled = true;
+                    atcBtn.style.background = '#059669';
+                }
+            }
         }
 
         function switchTab(btn, tabId) {

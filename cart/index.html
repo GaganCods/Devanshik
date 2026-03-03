@@ -345,11 +345,14 @@
             <a href="/product/?id=${item.productId}" class="cart-item-title">${escapeHtml(item.title)} ${typeChip}</a>
             ${item.uploadedPhotoUrl ? `<div class="cart-item-meta">📸 Custom photo uploaded</div>` : ''}
             ${item.size ? `<div class="cart-item-meta">Size: ${item.size}</div>` : ''}
-            <div class="qty-control" style="margin-top:var(--space-3);">
-              <button class="qty-btn" onclick="changeQty('${item.productId}','${item.size || ''}', ${item.qty - 1})">−</button>
-              <input type="number" class="qty-input" value="${item.qty}" min="1" onchange="changeQty('${item.productId}','${item.size || ''}',this.value)">
-              <button class="qty-btn" onclick="changeQty('${item.productId}','${item.size || ''}', ${item.qty + 1})">+</button>
-            </div>
+            ${item.productType === 'digital'
+                        ? `<div class="cart-item-meta" style="color:#4F46E5; font-weight:600; font-size:12px; margin-top:var(--space-3);">⚡ Digital &mdash; Qty fixed at 1</div>`
+                        : `<div class="qty-control" style="margin-top:var(--space-3);">
+                     <button class="qty-btn" onclick="changeQty('${item.productId}','${item.size || ''}', ${item.qty - 1})">−</button>
+                     <input type="number" class="qty-input" value="${item.qty}" min="1" onchange="changeQty('${item.productId}','${item.size || ''}',this.value)">
+                     <button class="qty-btn" onclick="changeQty('${item.productId}','${item.size || ''}', ${item.qty + 1})">+</button>
+                   </div>`
+                    }
           </div>
           <div style="display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-2); margin-left:auto;">
             ${priceHtml}
@@ -492,6 +495,14 @@
         }
 
         function changeQty(productId, size, newQty) {
+            // Digital products are always qty 1 — prevent any changes
+            const cart = getCart();
+            const item = cart.find(i => (i.productId + (i.size || '')) === productId + size);
+            if (item && item.productType === 'digital') {
+                showToast('Digital products are fixed at quantity 1 ⚡', 'warning');
+                renderCart();
+                return;
+            }
             const qty = Math.max(1, parseInt(newQty));
             updateCartQty(productId, size, qty);
             renderCart();

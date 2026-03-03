@@ -17,12 +17,24 @@ function saveCart(items) {
 function addToCart(item) {
     /* item: { productId, title, price, imageUrl, qty, size?, uploadedPhotoUrl?, productType, downloadFiles? } */
     const cart = getCart();
+    const isDigital = item.productType === 'digital';
     const key = item.productId + (item.size || '');
     const idx = cart.findIndex(i => (i.productId + (i.size || '')) === key);
-    if (idx >= 0) {
-        cart[idx].qty = (cart[idx].qty || 1) + (item.qty || 1);
+
+    if (isDigital) {
+        // Digital products are always qty 1 — never stack
+        if (idx >= 0) {
+            // Already in cart — keep as is, caller should've shown toast
+            showToast('Already in cart ⚡', 'warning');
+            return;
+        }
+        cart.push({ ...item, qty: 1 });
     } else {
-        cart.push({ ...item, qty: item.qty || 1 });
+        if (idx >= 0) {
+            cart[idx].qty = (cart[idx].qty || 1) + (item.qty || 1);
+        } else {
+            cart.push({ ...item, qty: item.qty || 1 });
+        }
     }
     saveCart(cart);
     showToast('Added to cart 🛕', 'success');

@@ -353,6 +353,14 @@ async function handleGlobalWishlist(e, id) {
 /** Global event handler for quick add to cart */
 function handleGlobalAddToCart(e, id, title, price, img, productType, downloadFiles) {
     e.stopPropagation();
+    // Block duplicate digital adds before calling addToCart
+    if (productType === 'digital' && typeof getCart === 'function') {
+        const alreadyInCart = getCart().some(i => i.productId === id);
+        if (alreadyInCart) {
+            showToast('Already in cart ⚡', 'warning');
+            return;
+        }
+    }
     if (typeof addToCart === 'function') {
         addToCart({
             productId: id,
